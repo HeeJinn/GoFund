@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.gofund.ui.theme.GoFundTheme
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.LightModeLightBlue
@@ -38,6 +39,16 @@ class MainActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ){
                         LogoText()
+                        UserNameTextField()
+                        PasswordTextField(
+                            modifier = Modifier
+                                .padding(top = 10.dp, bottom = 5.dp)
+                        )
+                        ForgotPassword(
+                            modifier = Modifier
+                                .padding(bottom = 20.dp),
+                        )
+                        LoginButton()
                     }
                 }
             }

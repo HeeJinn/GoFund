@@ -19,6 +19,9 @@ val SeaweedScriptFamily = FontFamily(
     Font(R.font.seaweedscript, FontWeight.Normal),
     Font(R.font.seaweedscript, FontWeight.Bold)
 )
+val PoppinsFamily = FontFamily(
+    Font(R.font.poppinsregular, FontWeight.Normal)
+)
 
 // Set of Material typography styles to start with
 val Typography = Typography(
