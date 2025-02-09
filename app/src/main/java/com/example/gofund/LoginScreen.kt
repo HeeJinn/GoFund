@@ -1,10 +1,13 @@
 package com.example.gofund
 
+import android.widget.Space
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -115,7 +118,7 @@ fun UserNameTextField(){
         ) },
         textStyle = TextStyle(
             fontFamily = PoppinsFamily,
-            color = MaterialTheme.colorScheme.background,
+            color = Color.Black,
             fontSize = 16.sp
         ),
         colors = TextFieldDefaults.colors(
@@ -125,7 +128,7 @@ fun UserNameTextField(){
             focusedLeadingIconColor = MaterialTheme.colorScheme.background,
             unfocusedLabelColor = focusedLabelColor,
         ),
-        placeholder = {Text(text = "Enter valid email")},
+        placeholder = {Text(text = "Enter valid email", color = Color.LightGray)},
         leadingIcon ={
                 Icon(imageVector = Icons.Rounded.Person, contentDescription = "Email")
 
@@ -160,7 +163,7 @@ fun PasswordTextField(modifier: Modifier = Modifier){
         value = password,
         textStyle = TextStyle(
             fontFamily = PoppinsFamily,
-            color = MaterialTheme.colorScheme.background,
+            color = Color.Black,
             fontSize = 16.sp
         ),
         onValueChange = {password = it},
@@ -170,7 +173,7 @@ fun PasswordTextField(modifier: Modifier = Modifier){
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         ) },
-        placeholder = {Text(text = "Enter password")},
+        placeholder = {Text(text = "Enter password", color = Color.LightGray)},
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.secondary,  // Background when focused
             unfocusedContainerColor = MaterialTheme.colorScheme.secondary,  // Background when not focused
@@ -222,6 +225,7 @@ fun ForgotPassword(modifier: Modifier = Modifier){
 
 @Composable
 fun LoginButton(modifier: Modifier = Modifier){
+    var isClicked by remember { mutableStateOf(false) }
     Button(
         modifier = modifier
             .width(200.dp),
@@ -238,6 +242,33 @@ fun LoginButton(modifier: Modifier = Modifier){
             color = Color.Black,
             text = "Login")
     }
+}
+
+@Composable
+fun SignUpButton(modifier: Modifier = Modifier){
+    var isClicked by remember { mutableStateOf(false) }
+    Button(
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+
+        ),
+        border = BorderStroke(width = 1.dp, color = Color.White),
+        onClick = {}
+    ) {
+        Text(text= "Don't have an account? Sign up")
+    }
+}
+
+@Composable
+fun SpacerWhiteLine(modifier: Modifier = Modifier){
+    Spacer(
+        modifier = modifier
+            .width(300.dp)
+            .padding(horizontal = 10.dp, vertical = 20.dp)
+            .height(1.dp)
+            .background(Color.White)
+    )
 }
 
 @Composable
@@ -271,6 +302,11 @@ fun PreviewCompose(){
                     .padding(bottom = 20.dp),
             )
             LoginButton()
+            SpacerWhiteLine(
+                modifier = Modifier
+                    .padding(vertical = 20.dp)
+            )
+            SignUpButton()
         }
     }
 }

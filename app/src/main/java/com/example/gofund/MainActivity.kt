@@ -49,6 +49,11 @@ class MainActivity : ComponentActivity() {
                                 .padding(bottom = 20.dp),
                         )
                         LoginButton()
+                        SpacerWhiteLine(
+                            modifier = Modifier
+                                .padding(vertical = 20.dp)
+                        )
+                        SignUpButton()
                     }
                 }
             }
