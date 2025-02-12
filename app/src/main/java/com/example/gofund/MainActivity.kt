@@ -27,35 +27,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             GoFundTheme {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    color = Color(LightModeLightBlue.value)
-                ) {
-                    Column (
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        LogoText()
-                        UserNameTextField()
-                        PasswordTextField(
-                            modifier = Modifier
-                                .padding(top = 10.dp, bottom = 5.dp)
-                        )
-                        ForgotPassword(
-                            modifier = Modifier
-                                .padding(bottom = 20.dp),
-                        )
-                        LoginButton()
-                        SpacerWhiteLine(
-                            modifier = Modifier
-                                .padding(vertical = 20.dp)
-                        )
-                        SignUpButton()
-                    }
-                }
+                LoginScreen()
             }
         }
     }

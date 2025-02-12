@@ -1,5 +1,6 @@
 package com.example.gofund
 
+import android.util.Log
 import android.widget.Space
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -7,8 +8,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -50,6 +53,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.gofund.ui.theme.GoFundTheme
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.LightModeLightBlue
 import com.example.gofund.ui.theme.PoppinsFamily
@@ -96,8 +100,7 @@ fun LogoText(){
 }
 
 @Composable
-fun UserNameTextField(){
-    var username by remember { mutableStateOf("") }
+fun UserNameTextField(username : String, onUsernameValueChange : (String) -> Unit){
     var isFocused by remember { mutableStateOf(false) }
     var focusedLabelColor = if (username.isNotEmpty() || isFocused) Color.White else Color.LightGray
     val focusManager = LocalFocusManager.current
@@ -108,7 +111,7 @@ fun UserNameTextField(){
                 isFocused = focusState.isFocused
             },
         value = username,
-        onValueChange = { username = it },
+        onValueChange = onUsernameValueChange,
         maxLines = 1,
         label = { Text(
             text = "Email",
@@ -145,8 +148,7 @@ fun UserNameTextField(){
 }
 
 @Composable
-fun PasswordTextField(modifier: Modifier = Modifier){
-    var password by remember { mutableStateOf("") }
+fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswordValueChange:(String) -> Unit){
     var isFocused by remember { mutableStateOf(false) }
     var focusedLabelColor = if (password.isNotEmpty() || isFocused) Color.White else Color.LightGray
     var passVisibility by remember { mutableStateOf(false) }
@@ -166,7 +168,7 @@ fun PasswordTextField(modifier: Modifier = Modifier){
             color = Color.Black,
             fontSize = 16.sp
         ),
-        onValueChange = {password = it},
+        onValueChange = onPasswordValueChange,
         label = { Text(
             text = "Password",
             fontFamily = PoppinsFamily,
@@ -256,57 +258,124 @@ fun SignUpButton(modifier: Modifier = Modifier){
         border = BorderStroke(width = 1.dp, color = Color.White),
         onClick = {}
     ) {
-        Text(text= "Don't have an account? Sign up")
+        Text(text= "Don't have an account? Sign up", color = Color.White)
     }
 }
 
 @Composable
 fun SpacerWhiteLine(modifier: Modifier = Modifier){
-    Spacer(
+    Row(
         modifier = modifier
-            .width(300.dp)
-            .padding(horizontal = 10.dp, vertical = 20.dp)
-            .height(1.dp)
-            .background(Color.White)
-    )
+            .width(300.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(
+            modifier = modifier
+                .weight(1f)
+                .padding(horizontal = 10.dp, vertical = 20.dp)
+                .height(1.dp)
+                .background(Color.White)
+        )
+        Text(modifier = modifier.padding(horizontal = 10.dp),text = "OR", color = Color.White, fontSize = 17.sp, fontFamily = PoppinsFamily, fontWeight = FontWeight.Bold)
+        Spacer(
+            modifier = modifier
+                .weight(1f)
+                .padding(horizontal = 10.dp, vertical = 20.dp)
+                .height(1.dp)
+                .background(Color.White)
+        )
+    }
+
 }
+
+@Preview
+@Composable
+fun WhiteSpacePreview(){
+    SpacerWhiteLine()
+}
+
 
 @Composable
 fun LoginScreen(){
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewCompose(){
-    Surface(
-        modifier = Modifier
-            .width(437.dp)
-            .height(971.dp),
-        color = Color(LightModeLightBlue.value)
-    ) {
-        Column (
+    GoFundTheme {
+        Surface(
             modifier = Modifier
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            LogoText()
-            UserNameTextField()
-            PasswordTextField(
+            color = Color(LightModeLightBlue.value)
+        ) {
+            Column (
                 modifier = Modifier
-                    .padding(top = 10.dp, bottom = 5.dp)
-            )
-            ForgotPassword(
-                modifier = Modifier
-                    .padding(bottom = 20.dp),
-            )
-            LoginButton()
-            SpacerWhiteLine(
-                modifier = Modifier
-                    .padding(vertical = 20.dp)
-            )
-            SignUpButton()
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                LogoText()
+                UserNameTextField(
+                    username = username,
+                    onUsernameValueChange = {
+                        username = it
+                        Log.d("LoginScreen", "username: $username")
+                    }
+                    )
+                PasswordTextField(
+                    password = password,
+                    modifier = Modifier
+                        .padding(top = 10.dp, bottom = 5.dp),
+                    onPasswordValueChange = {
+                        password = it
+                        Log.d("LoginScreen", " password: $password")
+                    }
+                )
+                ForgotPassword(
+                    modifier = Modifier
+                        .padding(bottom = 20.dp),
+                )
+                LoginButton()
+                SpacerWhiteLine(
+                    modifier = Modifier
+                        .padding(vertical = 20.dp)
+                )
+                SignUpButton()
+            }
         }
     }
 }
+
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewCompose(){
+//    Surface(
+//        modifier = Modifier
+//            .width(437.dp)
+//            .height(971.dp),
+//        color = Color(LightModeLightBlue.value)
+//    ) {
+//        Column (
+//            modifier = Modifier
+//                .fillMaxSize(),
+//            verticalArrangement = Arrangement.Center,
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ){
+//            LogoText()
+//            UserNameTextField()
+//            PasswordTextField(
+//                modifier = Modifier
+//                    .padding(top = 10.dp, bottom = 5.dp)
+//            )
+//            ForgotPassword(
+//                modifier = Modifier
+//                    .padding(bottom = 20.dp),
+//            )
+//            LoginButton()
+//            SpacerWhiteLine(
+//                modifier = Modifier
+//                    .padding(vertical = 20.dp)
+//            )
+//            SignUpButton()
+//        }
+//    }
+//}
