@@ -1,9 +1,12 @@
-package com.example.gofund
+package com.example.gofund.navigations
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.gofund.HomeScreen
+import com.example.gofund.LoginScreen
+import com.example.gofund.RegisterScreen
 
 @Composable
 fun SetupNavGraph(navController: NavHostController){
@@ -17,6 +20,9 @@ fun SetupNavGraph(navController: NavHostController){
         composable(route = Screen.RegisterScreen.route){
             RegisterScreen(navController = navController)
 
+        }
+        composable(route= Screen.HomeScreen.route){
+            HomeScreen(navController)
         }
     }
 

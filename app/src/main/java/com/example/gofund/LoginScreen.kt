@@ -1,6 +1,6 @@
 package com.example.gofund
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,15 +12,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -48,8 +50,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.GoFundTheme
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.LightModeLightBlue
@@ -104,7 +108,8 @@ fun EmailNameTextField(username : String, onUsernameValueChange : (String) -> Un
     OutlinedTextField(
         modifier = Modifier
             .padding(10.dp)
-            .onFocusChanged{focusState ->
+            .width(278.dp)
+            .onFocusChanged { focusState ->
                 isFocused = focusState.isFocused
             },
         value = username,
@@ -157,7 +162,8 @@ fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswor
     OutlinedTextField(
         modifier = modifier
             .padding(10.dp)
-            .onFocusChanged{focusState ->
+            .width(278.dp)
+            .onFocusChanged { focusState ->
                 isFocused = focusState.isFocused
             },
         value = password,
@@ -166,6 +172,7 @@ fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswor
             color = Color.Black,
             fontSize = 16.sp
         ),
+        maxLines = 1,
         shape = MaterialTheme.shapes.medium,
         onValueChange = onPasswordValueChange,
         label = { Text(
@@ -209,7 +216,7 @@ fun ForgotPassword(modifier: Modifier = Modifier){
         modifier = modifier
             .width(300.dp)
             .padding(end = 10.dp)
-            .clickable{
+            .clickable {
 
             },
         text = "forgot password",
@@ -246,7 +253,7 @@ fun LoginButton(navController: NavController,modifier: Modifier = Modifier, onCl
 }
 
 @Composable
-fun SignUpButton(modifier: Modifier = Modifier){
+fun SignUpButton(modifier: Modifier = Modifier, navController: NavController, onClick:() -> Unit){
     var isClicked by remember { mutableStateOf(false) }
     Button(
         modifier = modifier,
@@ -255,7 +262,7 @@ fun SignUpButton(modifier: Modifier = Modifier){
 
         ),
         border = BorderStroke(width = 1.dp, color = Color.White),
-        onClick = {}
+        onClick = onClick
     ) {
         Text(text= "Don't have an account? Sign up", color = Color.White)
     }
@@ -296,55 +303,93 @@ fun WhiteSpacePreview(){
 
 
 @Composable
-fun LoginScreen(navController: NavController){
-    var username by remember { mutableStateOf("") }
+fun LoginScreen(navController: NavController, LoginViewModel: LoginViewModel = viewModel()) {
+    val context = LocalContext.current // Get context
+
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     GoFundTheme {
-        Surface(
+        Box(
             modifier = Modifier
-                .fillMaxSize(),
-            color = Color(LightModeLightBlue.value)
+                .fillMaxSize()
+                .background(Color.LightGray)
         ) {
-            Column (
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ){
-                LogoText()
-                EmailNameTextField(
-                    username = username,
-                    onUsernameValueChange = {
-                        username = it
-                        Log.d("LoginScreen", "username: $username")
-                    }
+            // Main Content
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = Color(LightModeLightBlue.value)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LogoText()
+                    EmailNameTextField(username = email, onUsernameValueChange = { email = it })
+                    PasswordTextField(
+                        password = password,
+                        modifier = Modifier.padding(top = 10.dp, bottom = 5.dp),
+                        onPasswordValueChange = { password = it }
                     )
-                PasswordTextField(
-                    password = password,
-                    modifier = Modifier
-                        .padding(top = 10.dp, bottom = 5.dp),
-                    onPasswordValueChange = {
-                        password = it
-                        Log.d("LoginScreen", " password: $password")
+                    ForgotPassword(modifier = Modifier.padding(bottom = 20.dp))
+
+                    LoginButton(navController) {
+                        if (email.isEmpty() || password.isEmpty()){
+                            Toast.makeText(context, "Make sure to fill username and password", Toast.LENGTH_SHORT).show()
+                            return@LoginButton
+                        }else{
+                            isLoading = true
+
+                            LoginViewModel.login(email, password,
+                                onSuccess = {
+                                    isLoading = false
+                                    Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
+                                    navController.navigate(Screen.HomeScreen.route)
+                                },
+                                onFailure = { error ->
+                                    isLoading = false
+                                    errorMessage = error
+                                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
                     }
-                )
-                ForgotPassword(
-                    modifier = Modifier
-                        .padding(bottom = 20.dp),
-                )
-                LoginButton(navController){
-                    navController.navigate(Screen.RegisterScreen.route)
+
+                    SpacerWhiteLine(modifier = Modifier.padding(vertical = 10.dp))
+
+                    SignUpButton(
+                        navController = navController,
+                        onClick = { navController.navigate(Screen.RegisterScreen.route) }
+                    )
                 }
-                SpacerWhiteLine(
+            }
+
+            // ✅ Floating Circular Progress
+            if (isLoading) {
+                Box(
                     modifier = Modifier
-                        .padding(vertical = 10.dp)
-                )
-                SignUpButton()
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f)) // Dim background
+                        .clickable(enabled = false) {}, // Prevent clicks when loading
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 4.dp,
+                        modifier = Modifier
+                            .size(50.dp)
+
+                    )
+                }
             }
         }
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable
