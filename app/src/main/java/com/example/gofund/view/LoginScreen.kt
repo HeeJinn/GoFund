@@ -1,4 +1,4 @@
-package com.example.gofund
+package com.example.gofund.view
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.gofund.R
+import com.example.gofund.navigations.BottomBarScreen
 import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.GoFundTheme
 import com.example.gofund.ui.theme.IntroFamily
@@ -347,7 +349,7 @@ fun LoginScreen(navController: NavController, LoginViewModel: LoginViewModel = v
                                 onSuccess = {
                                     isLoading = false
                                     Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
-                                    navController.navigate(Screen.HomeScreen.route)
+                                    navController.navigate(BottomBarScreen.Home_Screen.route)
                                 },
                                 onFailure = { error ->
                                     isLoading = false

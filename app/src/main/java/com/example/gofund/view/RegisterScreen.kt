@@ -1,4 +1,4 @@
-package com.example.gofund
+package com.example.gofund.view
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.gofund.R
 import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.GoFundTheme
 import com.example.gofund.ui.theme.IntroFamily
