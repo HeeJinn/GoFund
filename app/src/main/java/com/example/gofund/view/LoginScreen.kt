@@ -349,7 +349,7 @@ fun LoginScreen(navController: NavController, LoginViewModel: LoginViewModel = v
                                 onSuccess = {
                                     isLoading = false
                                     Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
-                                    navController.navigate(BottomBarScreen.Home_Screen.route)
+                                    navController.navigate(Screen.ContentScreen.route)
                                 },
                                 onFailure = { error ->
                                     isLoading = false

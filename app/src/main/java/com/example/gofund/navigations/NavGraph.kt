@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.example.gofund.view.ContentMainScreen
 import com.example.gofund.view.HomeScreen
 import com.example.gofund.view.LoginScreen
 import com.example.gofund.view.RegisterScreen
@@ -23,7 +24,11 @@ fun SetupNavGraph(navController: NavHostController){
             RegisterScreen(navController = navController)
 
         }
-        authNavGraph(navController)
+        composable(route = Screen.ContentScreen.route){
+            ContentMainScreen()
+        }
+
+//        bottomNavGraph(navController)
 
     }
 

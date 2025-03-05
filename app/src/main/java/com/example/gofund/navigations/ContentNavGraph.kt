@@ -1,22 +1,21 @@
 package com.example.gofund.navigations
 
-import androidx.navigation.NavGraphBuilder
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import com.example.gofund.view.CreateExpenseScreen
 import com.example.gofund.view.ExpenseScreen
 import com.example.gofund.view.HomeScreen
 import com.example.gofund.view.InvestmentScreen
 import com.example.gofund.view.ReportScreen
 
-fun NavGraphBuilder.authNavGraph(
-    navController: NavHostController
-){
-    navigation(
+@Composable
+fun setUpContentNavGraph(navController: NavHostController){
+    NavHost(
         startDestination = BottomBarScreen.Home_Screen.route,
-        route = AUTHENTICATION_ROUTE
-    ){
+        navController = navController,
+    ) {
         composable(route = BottomBarScreen.Expense_Screen.route){
             ExpenseScreen(navController)
         }
@@ -33,4 +32,5 @@ fun NavGraphBuilder.authNavGraph(
             HomeScreen(navController)
         }
     }
+
 }

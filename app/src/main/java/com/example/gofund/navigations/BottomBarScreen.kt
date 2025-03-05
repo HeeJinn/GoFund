@@ -25,7 +25,7 @@ sealed class BottomBarScreen(
     )
     object  Investment_Screen: BottomBarScreen(
         route = "investment_screen",
-        title = "Investment",
+        title = "Asset",
         icon = Icons.Rounded.Info
     )
     object  Report_Screen: BottomBarScreen(
