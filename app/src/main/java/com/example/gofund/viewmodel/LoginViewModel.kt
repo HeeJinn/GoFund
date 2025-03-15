@@ -1,6 +1,9 @@
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.gofund.model.UserData
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.database
 
 class LoginViewModel : ViewModel() {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -35,6 +38,8 @@ class LoginViewModel : ViewModel() {
                             .addOnCompleteListener { verificationTask ->
                                 if (verificationTask.isSuccessful) {
                                     Log.d("sendEmail", "Email verification sent")
+                                    createUserData(email, password)
+
                                     onSuccess()  // Ensure success callback is called
                                 } else {
                                     onFailure("Failed to send verification email.")
@@ -47,6 +52,19 @@ class LoginViewModel : ViewModel() {
             }
             .addOnFailureListener { exception ->
                 onFailure(exception.message ?: "An error occurred.")
+            }
+    }
+    private fun createUserData(email: String, password: String){
+        val firebase = Firebase.database("hhttps://gofund-1ae38-default-rtdb.asia-southeast1.firebasedatabase.app/")
+        val dbRef = firebase.getReference("goFund")
+        val userID = FirebaseAuth.getInstance().currentUser?.uid
+        val userData = UserData(email = email, password= password)
+        dbRef.child(userID.toString()).setValue(userData)
+            .addOnCompleteListener {
+                Log.d("USER_DATA", "user created")
+        }
+            .addOnFailureListener {
+                Log.d("USER_DATA", it.message.toString())
             }
     }
 }

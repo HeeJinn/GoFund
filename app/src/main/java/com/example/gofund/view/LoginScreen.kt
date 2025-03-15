@@ -1,5 +1,6 @@
 package com.example.gofund.view
 
+import LoginViewModel
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -197,7 +198,11 @@ fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswor
 
         },
         trailingIcon = {
-            IconButton(onClick = {passVisibility = !passVisibility}) {
+            IconButton(
+                onClick = {
+                    passVisibility = !passVisibility
+                }
+            ) {
                 Icon(painter = icon, contentDescription = "visibility")
             }
         },
@@ -349,7 +354,11 @@ fun LoginScreen(navController: NavController, LoginViewModel: LoginViewModel = v
                                 onSuccess = {
                                     isLoading = false
                                     Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
-                                    navController.navigate(Screen.ContentScreen.route)
+                                    navController.navigate(Screen.ContentScreen.route){
+                                        popUpTo(Screen.LoginScreen.route){
+                                            inclusive = true
+                                        }
+                                    }
                                 },
                                 onFailure = { error ->
                                     isLoading = false

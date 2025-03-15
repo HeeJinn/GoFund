@@ -31,5 +31,21 @@ fun CreateExpenseScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Create Expense Screen", fontFamily = PoppinsFamily)
+
+//        TextField(
+//            value = value.toString(),
+//            onValueChange = {
+//                value = if (it.isNotEmpty()){
+//                    it.toInt()
+//                }else{
+//                    0
+//                }
+//            },
+//            keyboardOptions = KeyboardOptions(
+//                keyboardType = KeyboardType.Number,
+//                imeAction = ImeAction.Done
+//            )
+//        )
+
     }
 }
