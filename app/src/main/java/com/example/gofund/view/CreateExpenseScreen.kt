@@ -35,7 +35,7 @@ fun CreateExpenseScreen(
 //        TextField(
 //            value = value.toString(),
 //            onValueChange = {
-//                value = if (it.isNotEmpty()){
+//                value = if (it.isNotEmptyz)){
 //                    it.toInt()
 //                }else{
 //                    0

@@ -28,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.example.gofund.ui.theme.IntroFamily
+import com.example.gofund.ui.theme.PoppinsFamily
 
 @Composable
 fun CustomComponent(
@@ -165,13 +167,15 @@ fun EmbeddedElements(
         text = smallText,
         color = smallTextColor,
         fontSize = smallTextFontSize,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
     )
     Text(
         text = "$bigText ${bigTextSuffix.take(2)}",
         color = bigTextColor,
+        maxLines = 1,
         fontSize = bigTextFontSize,
         textAlign = TextAlign.Center,
+        fontFamily = IntroFamily,
         fontWeight = FontWeight.Bold
     )
 

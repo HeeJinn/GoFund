@@ -15,7 +15,7 @@ data class UserData(
 ){
     @Exclude
     fun mapTo(){
-        // TODO:  
+        // TODO:  from realtime database documentation
     }
 }
 

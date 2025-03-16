@@ -26,14 +26,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
+import com.example.gofund.navigations.BottomBarScreen
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.PoppinsFamily
 
@@ -57,6 +61,9 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) 
         ) {
             CustomComponent(
                 indicatorValue = value,
+                canvasSize = 280.dp,
+                backgroundIndicatorStrokeWidth = 80f,
+                foregroundIndicatorStrokeWidth = 80f,
             )
             TitleText(
                 modifier = Modifier
@@ -97,7 +104,7 @@ fun TitleText(modifier: Modifier = Modifier){
             text = "your financial navigator",
             fontFamily = PoppinsFamily,
             color = MaterialTheme.colorScheme.tertiary,
-            fontSize = 14.sp
+            fontSize = 17.sp,
         )
     }
 
