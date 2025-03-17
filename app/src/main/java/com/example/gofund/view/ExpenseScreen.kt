@@ -3,10 +3,10 @@ package com.example.gofund.view
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,10 +21,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,16 +35,28 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
 import com.example.gofund.model.ExpenseTypeItem
+import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.IntroFamily
-import com.example.gofund.ui.theme.LightModeLightBlue
-import com.example.gofund.ui.theme.LightModeWhite
 import com.example.gofund.ui.theme.PoppinsFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseScreen(
-    navController: NavController,
-){
+fun ExpenseScreen( navController: NavController){
+    //fake repo remove later on hehe
+    val fakeData = listOf(
+        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+
+        )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,13 +65,33 @@ fun ExpenseScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
 
     ) {
-        ImageAndTotal(9)
+        ImageAndTotal(fakeData.size)
         ViewAllButton(
             onViewAllClick = {
                 Log.d("CONTENT_BUTTON", "View All Clicked")
             }
         )
-        LazyColumnCard()
+        Card(
+            modifier = Modifier
+                .padding(horizontal = 20.dp, vertical = 10.dp)
+                .fillMaxWidth()
+                .height(400.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(10.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(fakeData) { data ->
+                    ExpenseItemHolder(expenseItem = data, navController = navController)
+                }
+            }
+        }
     }
 
 }
@@ -122,46 +151,26 @@ fun ImageAndTotal(numberOfExpenses: Int){
 }
 
 @Composable
-fun LazyColumnCard(){
-    //fake repo remove later on hehe
-    val fakeData = listOf(
-        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-
-    )
-
-    Card(
-        modifier = Modifier
-            .padding(horizontal = 20.dp, vertical = 10.dp)
-            .fillMaxWidth()
-            .height(400.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        )
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(fakeData) { data ->
-                ExpenseItemHolder(data)
-            }
-        }
-    }
-}
-
-@Composable
-fun ExpenseItemHolder(expenseItem: ExpenseTypeItem){
+fun ExpenseItemHolder(expenseItem: ExpenseTypeItem, navController: NavController){
     val expenseTypeImage = if (expenseItem.expenseType == "expense") painterResource(id = R.drawable.expense_type) else painterResource(id = R.drawable.expense)
     Card(
         modifier = Modifier
             .padding(horizontal = 5.dp, vertical = 5.dp)
             .fillMaxWidth()
-            .height(80.dp),
+            .height(80.dp)
+            .clickable{
+                Log.d("CONTENT_BUTTON", "$expenseItem")
+                navController.navigate(Screen.DetailScreen.passNote(
+                    expenseItem.expenseType!!,
+                    expenseItem.amount!!,
+                    expenseItem.title!!,
+                    expenseItem.note!!,
+                    expenseItem.timeStamp!!
+
+                    )
+                )
+                Log.d("PASSED_ARGUMENTS", "$expenseItem.expenseType, $expenseItem.amount, $expenseItem.title, $expenseItem.note, $expenseItem.timeStamp")
+            },
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         )
@@ -250,7 +259,8 @@ fun PreviewExpenseScreen(){
 @Preview(showBackground = true)
 @Composable
 fun PreviewItem(){
+    val navController = rememberNavController()
     val fakeData = ExpenseTypeItem("Expense", 100, "Burger", "yummy soo tastyy", "10-10-2024")
-    ExpenseItemHolder(fakeData)
+    ExpenseItemHolder(fakeData, navController)
 
 }

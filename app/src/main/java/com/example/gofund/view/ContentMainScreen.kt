@@ -18,11 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.navigations.BottomBarScreen
-import com.example.gofund.navigations.setUpContentNavGraph
+import com.example.gofund.navigations.BottomNavGraph
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.LightModeLightBlue
 import com.example.gofund.ui.theme.LightModeWhite
@@ -30,8 +31,8 @@ import com.example.gofund.ui.theme.LightModeYellow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContentMainScreen(){
-    val navController = rememberNavController()
+fun ContentMainScreen(navController: NavHostController){
+    val bottomNavController = rememberNavController()
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -44,14 +45,15 @@ fun ContentMainScreen(){
                 ),
             )
         },
-        bottomBar = {BottomBar(navController = navController)}
+        bottomBar = {BottomBar(navController = bottomNavController)}
     ) { innerPadding ->
         Surface(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            setUpContentNavGraph(navController)
+            // Use a NavHost *only* for the bottom bar screens
+            BottomNavGraph(navController = bottomNavController, mainNavController = navController)
 
         }
     }
@@ -101,7 +103,13 @@ fun RowScope.AddItem(
             it.route == screen.route
         } == true,
         onClick = {
-            navController.navigate(screen.route)
+            navController.navigate(screen.route){
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
         },
         colors = NavigationBarItemDefaults.colors(
             selectedIconColor = Color(LightModeYellow.value),

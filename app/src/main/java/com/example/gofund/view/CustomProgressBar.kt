@@ -170,7 +170,7 @@ fun EmbeddedElements(
         textAlign = TextAlign.Center,
     )
     Text(
-        text = "$bigText ${bigTextSuffix.take(2)}",
+        text = "${bigTextSuffix.take(2)} ${bigText}",
         color = bigTextColor,
         maxLines = 1,
         fontSize = bigTextFontSize,

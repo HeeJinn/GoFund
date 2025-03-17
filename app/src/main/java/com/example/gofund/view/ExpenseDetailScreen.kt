@@ -1,0 +1,151 @@
+package com.example.gofund.view
+
+
+import android.util.Log
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.gofund.R
+import com.example.gofund.ui.theme.IntroFamily
+import com.example.gofund.ui.theme.PoppinsFamily
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExpenseDetailScreen(
+    navController: NavController,
+    expenseType: String,
+    amount: Int,
+    title: String,
+    note: String,
+    timeStamp: String
+){
+    val expenseTypeImage = if (expenseType == "expense") painterResource(id = R.drawable.expense_type) else painterResource(id = R.drawable.expense)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Expense Detail", fontFamily = IntroFamily) },
+                colors = topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = Color.White
+                ),
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    ) {
+                        Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "arrow_button", modifier = Modifier.size(50.dp), tint = Color.White)
+                    }
+                }
+            )
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+                .background(Color.White),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    modifier = Modifier
+                        .size(150.dp)
+                        .padding(end = 15.dp),
+                    painter = expenseTypeImage,
+                    contentDescription = "Expense Type Image"
+                )
+                Column(
+                    modifier = Modifier
+                        .wrapContentSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Text(
+                        text = title,
+                        fontFamily = IntroFamily,
+                        fontSize = 40.sp,
+                        color = Color.Gray)
+                    Text(
+                        text = "₱$amount",
+                        fontFamily = IntroFamily,
+                        fontSize = 60.sp,
+                        color = MaterialTheme.colorScheme.tertiary)
+                    Log.d("AMOUNT", amount.toString())
+
+                }
+            }
+            Card(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 5.dp)
+                    .fillMaxWidth()
+                    .height(300.dp),
+                colors = androidx.compose.material3.CardDefaults.cardColors(
+                    containerColor = Color.LightGray
+                )
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(10.dp),
+                    text = note,
+                    fontFamily = PoppinsFamily,
+                    fontSize = 18.sp,
+                    color = Color.Black
+                )
+            }
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 30.dp, vertical = 10.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.End,
+                text = timeStamp,
+                fontFamily = PoppinsFamily,)
+        }
+    }
+    
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ShowDetailScreen(){
+    val navController = rememberNavController()
+    ExpenseDetailScreen(navController, "expense", 100, "Burger", "yummy soo tastyy", "10-10-2024")
+
+}
