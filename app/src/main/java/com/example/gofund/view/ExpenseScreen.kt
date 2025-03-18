@@ -55,7 +55,6 @@ fun ExpenseScreen( navController: NavController){
         ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
         ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
         ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-
         )
     Column(
         modifier = Modifier
@@ -65,8 +64,9 @@ fun ExpenseScreen( navController: NavController){
         horizontalAlignment = Alignment.CenterHorizontally,
 
     ) {
-        ImageAndTotal(fakeData.size)
+        ImageAndTotal(numberOfExpenses = fakeData.size, typeOfExpense = "Expense")
         ViewAllButton(
+            typeOfExpense = "Expense",
             onViewAllClick = {
                 Log.d("CONTENT_BUTTON", "View All Clicked")
             }
@@ -97,7 +97,8 @@ fun ExpenseScreen( navController: NavController){
 }
 
 @Composable
-fun ImageAndTotal(numberOfExpenses: Int){
+fun ImageAndTotal(numberOfExpenses: Int, typeOfExpense: String){
+    val expenseTypeImage = if (typeOfExpense == "Expense") painterResource(id = R.drawable.expense) else painterResource(id = R.drawable.investment)
     Row(
         modifier = Modifier
             .padding(10.dp)
@@ -109,7 +110,7 @@ fun ImageAndTotal(numberOfExpenses: Int){
 
             modifier = Modifier
                 .size(160.dp),
-            painter = painterResource(id = R.drawable.expense),
+            painter = expenseTypeImage,
             contentDescription = "expense_image",
 
         )
@@ -126,7 +127,7 @@ fun ImageAndTotal(numberOfExpenses: Int){
                 fontSize = 24.sp
             )
             Text(
-                text = "Expenses",
+                text = typeOfExpense,
                 fontFamily = IntroFamily,
                 textAlign = TextAlign.Start,
                 color = Color.Gray,
@@ -152,7 +153,7 @@ fun ImageAndTotal(numberOfExpenses: Int){
 
 @Composable
 fun ExpenseItemHolder(expenseItem: ExpenseTypeItem, navController: NavController){
-    val expenseTypeImage = if (expenseItem.expenseType == "expense") painterResource(id = R.drawable.expense_type) else painterResource(id = R.drawable.expense)
+    val expenseTypeImage = if (expenseItem.expenseType == "expense") painterResource(id = R.drawable.expense_type) else painterResource(id = R.drawable.investment_type)
     Card(
         modifier = Modifier
             .padding(horizontal = 5.dp, vertical = 5.dp)
@@ -187,10 +188,13 @@ fun ExpenseItemHolder(expenseItem: ExpenseTypeItem, navController: NavController
                 painter = expenseTypeImage, contentDescription = "item type image"
             )
             Text(
-                text = "${expenseItem.title}",
+                text = "${expenseItem.title}".take(13),
                 fontFamily = PoppinsFamily,
                 fontSize = 22.sp,
-                color = Color.Black
+                color = Color.Black,
+                minLines = 1,
+                maxLines = 1,
+
             )
             Column {
                 Text(
@@ -212,7 +216,7 @@ fun ExpenseItemHolder(expenseItem: ExpenseTypeItem, navController: NavController
 
 
 @Composable
-fun ViewAllButton(onViewAllClick: () -> Unit){
+fun ViewAllButton(onViewAllClick: () -> Unit, typeOfExpense: String){
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -225,7 +229,7 @@ fun ViewAllButton(onViewAllClick: () -> Unit){
                 .weight(1f),
             fontFamily = IntroFamily,
             fontSize = 16.sp,
-            text = "Expense List",
+            text = "$typeOfExpense List",
             color = Color.Gray
         )
         OutlinedButton(

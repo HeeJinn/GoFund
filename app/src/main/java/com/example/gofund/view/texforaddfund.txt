@@ -1,0 +1,14 @@
+//        TextField(
+//            value = value.toString(),
+//            onValueChange = {
+//                value = if (it.isNotEmptyz)){
+//                    it.toInt()
+//                }else{
+//                    0
+//                }
+//            },
+//            keyboardOptions = KeyboardOptions(
+//                keyboardType = KeyboardType.Number,
+//                imeAction = ImeAction.Done
+//            )
+//        )

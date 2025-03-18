@@ -25,10 +25,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +41,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
+import com.example.gofund.navigations.BottomBarScreen
+import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.PoppinsFamily
 
@@ -49,19 +56,25 @@ fun ExpenseDetailScreen(
     note: String,
     timeStamp: String
 ){
+
     val expenseTypeImage = if (expenseType == "expense") painterResource(id = R.drawable.expense_type) else painterResource(id = R.drawable.expense)
+    val appBarText = if (expenseType == "expense") "Expense Detail" else "Investment Detail"
+    var isButtonEnabled by remember { mutableStateOf(true) }
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Expense Detail", fontFamily = IntroFamily) },
+                title = { Text(text = appBarText, fontFamily = IntroFamily) },
                 colors = topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = Color.White
                 ),
                 navigationIcon = {
                     IconButton(
+                        enabled = isButtonEnabled,
                         onClick = {
                             navController.popBackStack()
+                            isButtonEnabled = !isButtonEnabled
+                            Log.d("CONTENT_BUTTON", "Back Button Clicked $isButtonEnabled")
                         }
                     ) {
                         Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "arrow_button", modifier = Modifier.size(50.dp), tint = Color.White)
@@ -102,11 +115,13 @@ fun ExpenseDetailScreen(
                         text = title,
                         fontFamily = IntroFamily,
                         fontSize = 40.sp,
-                        color = Color.Gray)
+                        color = Color.Gray,
+                        style = TextStyle(lineHeight = 30.sp)
+                    )
                     Text(
                         text = "₱$amount",
                         fontFamily = IntroFamily,
-                        fontSize = 60.sp,
+                        fontSize = 50.sp,
                         color = MaterialTheme.colorScheme.tertiary)
                     Log.d("AMOUNT", amount.toString())
 
@@ -136,7 +151,8 @@ fun ExpenseDetailScreen(
                     .fillMaxWidth(),
                 textAlign = TextAlign.End,
                 text = timeStamp,
-                fontFamily = PoppinsFamily,)
+                fontFamily = PoppinsFamily,
+            )
         }
     }
     
