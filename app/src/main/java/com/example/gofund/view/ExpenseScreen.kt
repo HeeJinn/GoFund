@@ -44,7 +44,7 @@ import com.example.gofund.ui.theme.PoppinsFamily
 fun ExpenseScreen( navController: NavController){
     //fake repo remove later on hehe
     val fakeData = listOf(
-        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem("expense", 100000, "Burger", "yummy soo tastyy", "10-10-2024"),
         ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
         ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
         ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),

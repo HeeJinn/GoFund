@@ -57,7 +57,7 @@ fun ExpenseDetailScreen(
     timeStamp: String
 ){
 
-    val expenseTypeImage = if (expenseType == "expense") painterResource(id = R.drawable.expense_type) else painterResource(id = R.drawable.expense)
+    val expenseTypeImage = if (expenseType == "expense") painterResource(id = R.drawable.expense_type) else painterResource(id = R.drawable.investment_type)
     val appBarText = if (expenseType == "expense") "Expense Detail" else "Investment Detail"
     var isButtonEnabled by remember { mutableStateOf(true) }
     Scaffold(
@@ -141,6 +141,8 @@ fun ExpenseDetailScreen(
                         .padding(10.dp),
                     text = note,
                     fontFamily = PoppinsFamily,
+                    maxLines = 9,
+                    minLines = 1,
                     fontSize = 18.sp,
                     color = Color.Black
                 )

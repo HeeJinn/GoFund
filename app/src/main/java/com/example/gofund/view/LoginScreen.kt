@@ -119,6 +119,7 @@ fun EmailNameTextField(username : String, onUsernameValueChange : (String) -> Un
         shape = MaterialTheme.shapes.medium,
         onValueChange = onUsernameValueChange,
         maxLines = 1,
+        singleLine = true,
         label = { Text(
             text = "Email",
             fontFamily = PoppinsFamily,
@@ -184,6 +185,7 @@ fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswor
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         ) },
+        singleLine = true,
         placeholder = {Text(text = "Enter password", color = Color.LightGray)},
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.secondary,  // Background when focused
