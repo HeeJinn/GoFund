@@ -87,7 +87,7 @@ fun ExpenseScreen( navController: NavController){
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(fakeData) { data ->
+                items(fakeData.take(5)) { data ->
                     ExpenseItemHolder(expenseItem = data, navController = navController)
                 }
             }

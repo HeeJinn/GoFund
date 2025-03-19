@@ -121,7 +121,7 @@ fun ExpenseDetailScreen(
                     Text(
                         text = "₱$amount",
                         fontFamily = IntroFamily,
-                        fontSize = 50.sp,
+                        fontSize = 45.sp,
                         color = MaterialTheme.colorScheme.tertiary)
                     Log.d("AMOUNT", amount.toString())
 
@@ -164,6 +164,6 @@ fun ExpenseDetailScreen(
 @Composable
 fun ShowDetailScreen(){
     val navController = rememberNavController()
-    ExpenseDetailScreen(navController, "expense", 100, "Burger", "yummy soo tastyy", "10-10-2024")
+    ExpenseDetailScreen(navController, "expense", 100000, "Burger", "yummy soo tastyy", "10-10-2024")
 
 }
