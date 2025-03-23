@@ -8,11 +8,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.example.gofund.view.AccountScreen
+import com.example.gofund.view.AddFundScreen
 import com.example.gofund.view.ContentMainScreen
+import com.example.gofund.view.EditFundScreen
 import com.example.gofund.view.ExpenseDetailScreen
 import com.example.gofund.view.HomeScreen
 import com.example.gofund.view.LoginScreen
 import com.example.gofund.view.RegisterScreen
+import com.example.gofund.view.WholeExpenseScreen
+import com.example.gofund.view.WholeInvestmentScreen
 
 @Composable
 fun SetupNavGraph(navController: NavHostController){ //Main Nav Graph
@@ -30,6 +35,21 @@ fun SetupNavGraph(navController: NavHostController){ //Main Nav Graph
         }
         composable(route = Screen.ContentScreen.route){
             ContentMainScreen(navController)
+        }
+        composable(route = Screen.AddFundScreen.route){
+            AddFundScreen(navController)
+        }
+        composable(route = Screen.EditFundScreen.route ){
+            EditFundScreen(navController)
+        }
+        composable(route = Screen.AccountScreen.route) {
+            AccountScreen(navController)
+        }
+        composable(route = Screen.WholeExpenseScreen.route) {
+            WholeExpenseScreen(navController)
+        }
+        composable(route = Screen.WholeInvestmentScreen.route) {
+            WholeInvestmentScreen(navController)
         }
         composable(
             route = Screen.DetailScreen.route,

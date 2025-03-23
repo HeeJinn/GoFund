@@ -135,7 +135,7 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
                             Toast.makeText(context, "Make sure to fill all the text field", Toast.LENGTH_SHORT).show()
                         }else{
                             isLoading = true
-                            loginViewModel.signUp(email, username, password,
+                            loginViewModel.signUp(email.trim(), username, password.trim(),
                                 onSuccess = {
                                     isLoading = false
                                     Toast.makeText(context, "Verification sent to your email", Toast.LENGTH_SHORT).show()

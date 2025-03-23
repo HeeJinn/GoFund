@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
+import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.PoppinsFamily
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -273,7 +274,8 @@ fun TextFieldForCreateExpense(value: String, onValueChange: (String) -> Unit, le
         value = value,
 
         textStyle = TextStyle(
-            fontFamily = PoppinsFamily
+            fontFamily = IntroFamily,
+            color = MaterialTheme.colorScheme.tertiary
         ),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
@@ -300,7 +302,7 @@ fun TextFieldForCreateExpense(value: String, onValueChange: (String) -> Unit, le
             Text(
                 text = placeHolder,
                 color = Color.Gray,
-                fontFamily = PoppinsFamily
+                fontFamily = IntroFamily
             )
         },
         keyboardActions = KeyboardActions(onDone = {isFocus.clearFocus()}),

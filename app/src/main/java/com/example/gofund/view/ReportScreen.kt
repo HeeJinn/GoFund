@@ -46,6 +46,23 @@ import com.example.gofund.ui.theme.PoppinsFamily
 fun ReportScreen(
     navController: NavController,
 ){
+    var selectedIndex by remember { mutableStateOf(0) }
+    val reportOptions = listOf("Weekly", "Monthly", "Annually")
+    var weeklyExpense by remember { mutableStateOf(0) }
+    var weeklyInvestment by remember { mutableStateOf(0) }
+    var monthlyExpense by remember { mutableStateOf(10) }
+    var monthlyInvestment by remember { mutableStateOf(110) }
+    var annualExpense by remember { mutableStateOf(1110) }
+    var annualInvestment by remember { mutableStateOf(1110) }
+
+    var totalExpense = if (selectedIndex == 0) weeklyExpense else if (selectedIndex == 1) monthlyExpense else annualExpense
+    var totalInvestment = if (selectedIndex == 0) weeklyInvestment else if (selectedIndex == 1) monthlyInvestment else annualInvestment
+
+
+
+
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -53,8 +70,7 @@ fun ReportScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var selectedIndex by remember { mutableStateOf(0) }
-        val reportOptions = listOf("Weekly", "Monthly", "Annually")
+
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
                 .fillMaxWidth()
@@ -93,14 +109,22 @@ fun ReportScreen(
                 canvasSize = 175.dp,
                 backgroundIndicatorStrokeWidth = 50f,
                 smallText = "Total",
-                bigTextSuffix = "%"
+                bigTextSuffix = "%",
+                maxIndicatorValue = 1000,
+                indicatorValue = totalExpense,
+                bigTextFontSize = 27.sp,
+                foregroundIndicatorStrokeWidth = 50f
+                )
 
-            )
             CustomComponent(
                 canvasSize = 175.dp,
                 backgroundIndicatorStrokeWidth = 50f,
                 smallText = "Total",
-                bigTextSuffix = "%"
+                bigTextSuffix = "%",
+                maxIndicatorValue = 1000,
+                indicatorValue = totalInvestment,
+                foregroundIndicatorStrokeWidth = 50f,
+                bigTextFontSize = 27.sp,
             )
         }
         Row(
@@ -159,7 +183,7 @@ fun ReportScreen(
                 ){
                     Text(
                         modifier = Modifier.weight(1f).padding(start = 20.dp),
-                        text = "Total\nInvestment",
+                        text = "Total\nExpense",
                         fontFamily = PoppinsFamily,
                         fontSize = 20.sp,
                         color = Color.Black,
@@ -167,7 +191,7 @@ fun ReportScreen(
                     )
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = "₱ 1000",
+                        text = "₱ $totalExpense",
                         fontFamily = IntroFamily,
                         color = MaterialTheme.colorScheme.tertiary,
                         fontSize = 20.sp,
@@ -197,7 +221,7 @@ fun ReportScreen(
                     )
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = "₱ 1000",
+                        text = "₱ $totalInvestment",
                         fontFamily = IntroFamily,
                         color = MaterialTheme.colorScheme.tertiary,
                         fontSize = 20.sp,

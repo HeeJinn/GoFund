@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.model.ExpenseTypeItem
+import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.LightModeLightBlue
 import com.example.gofund.ui.theme.LightModeWhite
@@ -54,14 +55,13 @@ fun InvestmentScreen(
             ExpenseTypeItem("investment", 100, "Gaming Laptop", "damn ive been dreaming for this item", "10-10-2024"),
             ExpenseTypeItem("investment", 100, "Iphone 22", "damn ive been dreaming for this item", "10-10-2024"),
             ExpenseTypeItem("investment", 100, "OnaHole Flesh", "damn ive been dreaming for this item", "10-10-2024"),
-
-
         )
         ImageAndTotal(numberOfExpenses = fakeInvestRepo.size, typeOfExpense = "Investment")
         ViewAllButton(
             typeOfExpense = "Investment",
             onViewAllClick = {
                 Log.d("CONTENT_BUTTON", "View All Clicked")
+                navController.navigate(Screen.WholeInvestmentScreen.route)
             }
         )
         Card(
@@ -76,7 +76,7 @@ fun InvestmentScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp),
+                    .padding(vertical = 10.dp),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

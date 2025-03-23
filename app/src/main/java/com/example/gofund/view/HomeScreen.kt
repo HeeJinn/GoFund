@@ -38,6 +38,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
 import com.example.gofund.navigations.BottomBarScreen
+import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.PoppinsFamily
 
@@ -45,6 +46,7 @@ import com.example.gofund.ui.theme.PoppinsFamily
 @Composable
 fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) {
     var value by remember { mutableIntStateOf(50) }
+    var userName = "Kenley"
     Column(
         modifier = Modifier
             .background(Color.White)
@@ -53,6 +55,15 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) 
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            modifier= Modifier
+                .padding(20.dp)
+                .fillMaxWidth(),
+            text = "Hello $userName",
+            fontFamily = IntroFamily,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 20.sp
+        )
         Box(
             modifier = Modifier
                 .background(Color.White)
@@ -75,12 +86,15 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) 
             navController = navController,
             onAddFundClick = {
                 Log.d("CONTENT_BUTTON", "Add Fund Clicked")
+                navController.navigate(Screen.AddFundScreen.route)
             },
             onEditFundClick = {
                 Log.d("CONTENT_BUTTON", "Edit Fund Clicked")
+                navController.navigate(Screen.EditFundScreen.route)
             },
             onAccountClick = {
                 Log.d("CONTENT_BUTTON", "Account Clicked")
+                navController.navigate(Screen.AccountScreen.route)
             }
         )
 
@@ -146,6 +160,7 @@ fun ContentButtons(navController: NavHostController, onAddFundClick: () -> Unit,
                     painter = painterResource(id = R.drawable.add_fund),
                     contentDescription = "Vector",
                     modifier = Modifier
+                        .padding(bottom = 5.dp)
                         .width(100.dp)
                         .height(100.dp)
                     )
@@ -190,6 +205,7 @@ fun ContentButtons(navController: NavHostController, onAddFundClick: () -> Unit,
                         painter = painterResource(id = R.drawable.edit_fund),
                         contentDescription = "Vector",
                         modifier = Modifier
+                            .padding(bottom = 5.dp)
                             .width(60.dp)
                             .height(60.dp)
                     )
@@ -227,6 +243,7 @@ fun ContentButtons(navController: NavHostController, onAddFundClick: () -> Unit,
                         painter = painterResource(id = R.drawable.account),
                         contentDescription = "Vector",
                         modifier = Modifier
+                            .padding(bottom = 5.dp)
                             .width(60.dp)
                             .height(60.dp)
                     )

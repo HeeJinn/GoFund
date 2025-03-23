@@ -69,6 +69,9 @@ fun ExpenseScreen( navController: NavController){
             typeOfExpense = "Expense",
             onViewAllClick = {
                 Log.d("CONTENT_BUTTON", "View All Clicked")
+                navController.navigate(Screen.WholeExpenseScreen.route){
+
+                }
             }
         )
         Card(
@@ -83,7 +86,7 @@ fun ExpenseScreen( navController: NavController){
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp),
+                    .padding(vertical = 10.dp),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -156,7 +159,7 @@ fun ExpenseItemHolder(expenseItem: ExpenseTypeItem, navController: NavController
     val expenseTypeImage = if (expenseItem.expenseType == "expense") painterResource(id = R.drawable.expense_type) else painterResource(id = R.drawable.investment_type)
     Card(
         modifier = Modifier
-            .padding(horizontal = 5.dp, vertical = 5.dp)
+            .padding(horizontal = 20.dp, vertical = 5.dp)
             .fillMaxWidth()
             .height(80.dp)
             .clickable{
@@ -174,6 +177,9 @@ fun ExpenseItemHolder(expenseItem: ExpenseTypeItem, navController: NavController
             },
         colors = CardDefaults.cardColors(
             containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 10.dp
         )
     ){
         Row (

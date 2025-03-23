@@ -352,7 +352,7 @@ fun LoginScreen(navController: NavController, LoginViewModel: LoginViewModel = v
                         }else{
                             isLoading = true
 
-                            LoginViewModel.login(email, password,
+                            LoginViewModel.login(email.trim(), password.trim(),
                                 onSuccess = {
                                     isLoading = false
                                     Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
