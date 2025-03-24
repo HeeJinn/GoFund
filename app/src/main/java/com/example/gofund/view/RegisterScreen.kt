@@ -115,15 +115,19 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
                             .padding(top = 10.dp),
                         username = username,
                         onValueChange = {
-                            username = it
+                            if (username.length <= 13 || it.length < username.length){
+                                username = it
+                            }
                         }
                     )
                     PasswordRegister(
                         modifier = Modifier
                             .padding(top = 10.dp),
                         registerPass = password,
-                        onPasswordValueChange = {
-                            password = it
+                        onPasswordValueChange = { newPassword ->
+                            if (newPassword.length <= 9 || newPassword.length < password.length) {
+                                password = newPassword
+                            }
                         }
                     )
                     SignupButton(
@@ -135,10 +139,12 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
                             Toast.makeText(context, "Make sure to fill all the text field", Toast.LENGTH_SHORT).show()
                         }else{
                             isLoading = true
-                            loginViewModel.signUp(email.trim(), username, password.trim(),
+                            loginViewModel.signUp(email.trim(), username.trim(), password.trim(),
                                 onSuccess = {
                                     isLoading = false
                                     Toast.makeText(context, "Verification sent to your email", Toast.LENGTH_SHORT).show()
+                                    // TODO: take the values and throw to the db
+
                                     navController.navigate(Screen.LoginScreen.route){
                                         popUpTo(Screen.LoginScreen.route){
                                             inclusive = true
@@ -232,6 +238,12 @@ fun EmailRegister(modifier: Modifier= Modifier, email: String, onTextChange: (St
             color = Color.Black,
             fontSize = 16.sp
         ),
+        supportingText = {
+            Text(
+                text = "Must be a valid email format",
+                color = Color.White
+            )
+        },
         colors = TextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.secondary,
                     unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
@@ -266,7 +278,11 @@ fun UsernameRegister(modifier: Modifier, username: String, onValueChange: (Strin
                 isFocused = focusState.isFocused
             },
         value = username,
-        onValueChange = onValueChange,
+        onValueChange = {
+            if (username.length <= 13 || it.length < username.length){
+                onValueChange(it)
+            }
+        },
         label = {
             Text(text = "Username", fontFamily = PoppinsFamily)
         },
@@ -285,6 +301,12 @@ fun UsernameRegister(modifier: Modifier, username: String, onValueChange: (Strin
             focusedLeadingIconColor = MaterialTheme.colorScheme.background,
             unfocusedLabelColor = focusedLabelColor,
         ),
+        supportingText = {
+            Text(
+                text = "Must be 13 characters or less",
+                color = Color.White
+            )
+        },
         leadingIcon = {
             Icon(imageVector = Icons.Rounded.Person, contentDescription = "username_icon")
         },
@@ -300,7 +322,11 @@ fun UsernameRegister(modifier: Modifier, username: String, onValueChange: (Strin
 }
 
 @Composable
-fun PasswordRegister(modifier: Modifier = Modifier, registerPass: String, onPasswordValueChange:(String) -> Unit){
+fun PasswordRegister(
+    modifier: Modifier = Modifier,
+    registerPass: String,
+    onPasswordValueChange: (String) -> Unit
+) {
     var isFocused by remember { mutableStateOf(false) }
     var focusedLabelColor = if (registerPass.isNotEmpty() || isFocused) Color.White else Color.LightGray
     var passVisibility by remember { mutableStateOf(false) }
@@ -317,6 +343,12 @@ fun PasswordRegister(modifier: Modifier = Modifier, registerPass: String, onPass
                 isFocused = focusState.isFocused
             },
         value = registerPass,
+        supportingText = {
+            Text(
+                text = "Must be 9 characters or less",
+                color = Color.White
+            )
+        },
         textStyle = TextStyle(
             fontFamily = PoppinsFamily,
             color = Color.Black,
@@ -324,28 +356,33 @@ fun PasswordRegister(modifier: Modifier = Modifier, registerPass: String, onPass
         ),
         maxLines = 1,
         shape = MaterialTheme.shapes.medium,
-        onValueChange = onPasswordValueChange,
-        label = { Text(
-            text = "Password",
-            fontFamily = PoppinsFamily,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        ) },
-        placeholder = {Text(text = "Enter password", color = Color.LightGray)},
+        onValueChange = { newPassword ->
+            if (newPassword.length <= 9 || newPassword.length < registerPass.length) {
+                onPasswordValueChange(newPassword)
+            }
+        },
+        label = {
+            Text(
+                text = "Password",
+                fontFamily = PoppinsFamily,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        placeholder = { Text(text = "Enter password", color = Color.LightGray) },
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.secondary,  // Background when focused
-            unfocusedContainerColor = MaterialTheme.colorScheme.secondary,  // Background when not focused
-            focusedLabelColor = focusedLabelColor,  // Label color when focused
+            errorIndicatorColor = Color.Red,
+            focusedContainerColor = MaterialTheme.colorScheme.secondary,
+            unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
+            focusedLabelColor = focusedLabelColor,
             focusedLeadingIconColor = MaterialTheme.colorScheme.background,
-            unfocusedLabelColor = focusedLabelColor,  // Label color when not focused
+            unfocusedLabelColor = focusedLabelColor,
             focusedTrailingIconColor = MaterialTheme.colorScheme.background,
         ),
         leadingIcon = {
             Icon(imageVector = Icons.Rounded.Lock, contentDescription = "Email")
-
         },
         trailingIcon = {
-            IconButton(onClick = {passVisibility = !passVisibility}) {
+            IconButton(onClick = { passVisibility = !passVisibility }) {
                 Icon(painter = icon, contentDescription = "visibility")
             }
         },
@@ -355,7 +392,7 @@ fun PasswordRegister(modifier: Modifier = Modifier, registerPass: String, onPass
             imeAction = ImeAction.Done
         ),
         keyboardActions = KeyboardActions(
-            onDone = {focusManager.clearFocus()}
+            onDone = { focusManager.clearFocus() }
         )
     )
 }

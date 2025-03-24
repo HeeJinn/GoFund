@@ -20,8 +20,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -37,16 +39,56 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
+import com.example.gofund.model.UserData
 import com.example.gofund.navigations.BottomBarScreen
 import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.PoppinsFamily
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.database.database
 
 
 @Composable
 fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) {
-    var value by remember { mutableIntStateOf(50) }
-    var userName = "Kenley"
+    val firebase = Firebase.database("https://gofund-1ae38-default-rtdb.asia-southeast1.firebasedatabase.app/") // Correct URL
+    val dbRef = firebase.getReference("goFund")
+    val userID = Firebase.auth.currentUser?.uid
+
+    var userName by remember { mutableStateOf("Loading...") }
+    var totalAmount by remember { mutableIntStateOf(0) } // Use consistent naming
+    var initialAmount by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(key1 = userID) {
+        if (userID != null) {
+            dbRef.child(userID).get()
+                .addOnSuccessListener { snapshot ->
+                    if (snapshot.exists()) {
+                        val userData = snapshot.getValue(UserData::class.java)
+                        userName = userData?.userName ?: "User"
+                        totalAmount = userData?.totalAmount ?: 0 // Fetch totalAmount
+                        initialAmount = userData?.initialAmount ?: 0
+                    } else {
+                        userName = "User not found"
+                        navController.navigate(Screen.LoginScreen.route) {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    userName = "Error fetching data"
+                    Log.e("Firebase", "Error getting data", it)
+                }
+        } else {
+            userName = "Not signed in"
+            navController.navigate(Screen.LoginScreen.route) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        }
+    }
+    Log.d("AMOUNT", "$totalAmount $initialAmount")
+
     Column(
         modifier = Modifier
             .background(Color.White)
@@ -71,7 +113,7 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) 
             contentAlignment = Alignment.Center
         ) {
             CustomComponent(
-                indicatorValue = value,
+                indicatorValue = totalAmount,
                 canvasSize = 280.dp,
                 backgroundIndicatorStrokeWidth = 80f,
                 foregroundIndicatorStrokeWidth = 80f,

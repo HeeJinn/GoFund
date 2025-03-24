@@ -35,7 +35,7 @@ import com.example.gofund.ui.theme.PoppinsFamily
 fun CustomComponent(
     canvasSize : Dp = 300.dp,
     indicatorValue : Int = 0,
-    maxIndicatorValue : Int = 100,
+    maxIndicatorValue : Int = 100000,
     backgroundColorIndicator : Color = Color.LightGray,
     backgroundIndicatorStrokeWidth : Float = 100f,
     foregroundColorIndicator: Color = MaterialTheme.colorScheme.primary,
