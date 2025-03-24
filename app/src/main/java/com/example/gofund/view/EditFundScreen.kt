@@ -1,12 +1,13 @@
 package com.example.gofund.view
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,6 +33,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -51,8 +54,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
+import com.example.gofund.model.UserData
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.PoppinsFamily
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.database.database
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,10 +89,38 @@ fun EditFundScreen(navController: NavController){
             )
         }
     ){
-        var currentAmount by remember { mutableStateOf(5000) }
-        var initialAmount by remember { mutableStateOf(10000) }
+        val firebase = Firebase.database("https://gofund-1ae38-default-rtdb.asia-southeast1.firebasedatabase.app/") // Correct URL
+        val dbRef = firebase.getReference("goFund")
+        val userID = Firebase.auth.currentUser?.uid
+        val context = LocalContext.current
+
+        var totalAmount by remember { mutableStateOf(0) }
+        var initialAmount by remember { mutableStateOf(0) }
         var amount by remember { mutableStateOf("") }
         val maxAmountLength = 6
+
+        LaunchedEffect(key1 = userID) {
+            if (userID != null) {
+                dbRef.child(userID).get()
+                    .addOnSuccessListener { snapshot ->
+                        if (snapshot.exists()) {
+                            val userData = snapshot.getValue(UserData::class.java)
+                            totalAmount = userData?.totalAmount ?: 0 // Fetch totalAmount
+                            initialAmount = userData?.initialAmount ?: 0
+
+                        } else {
+                            Log.e("Firebase", "no data found ")
+                        }
+                    }
+                    .addOnFailureListener {
+                        Log.e("Firebase", "Error getting data", it)
+                    }
+            } else {
+                Log.e("Firebase", "User not signed in")
+
+            }
+        }
+        Log.d("AMOUNT", "$totalAmount $initialAmount")
 
         Column(
             modifier = Modifier
@@ -115,7 +150,7 @@ fun EditFundScreen(navController: NavController){
                     fontSize = 25.sp
                 )
             }
-            CircularProgressBarAndTotal(currentAmount, initialAmount)
+            CircularProgressBarAndTotal(totalAmount, initialAmount, isForEditFund = true)
             CardWithTextFieldAndTitle(
                 amount = amount,
                 onAmountChange = {
@@ -155,7 +190,19 @@ fun EditFundScreen(navController: NavController){
                         .padding(start = 5.dp)
                         .weight(1f),
                     onClick = {
-
+                        if (amount.isEmpty()){
+                            Toast.makeText(context, "Amount cannot be empty", Toast.LENGTH_SHORT).show()
+                            return@OutlinedButton
+                        }
+                        totalAmount -= amount.toInt()
+                        var newTotalAmount = checkIfLowerThanZero(totalAmount)
+                        totalAmount = newTotalAmount
+                        initialAmount -= amount.toInt()
+                        var newInitialAmount = checkIfLowerThanZero(initialAmount)
+                        initialAmount = newInitialAmount
+                        dbRef.child(userID.toString()).child("totalAmount").setValue(newTotalAmount)
+                        dbRef.child(userID.toString()).child("initialAmount").setValue(newInitialAmount)
+                        amount = ""
                     },
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.primary,
@@ -172,6 +219,10 @@ fun EditFundScreen(navController: NavController){
             }
         }
     }
+}
+
+fun checkIfLowerThanZero(amount: Int): Int{
+    return if (amount < 0) 0 else amount
 }
 @Composable
 fun CardWithTextFieldAndTitle(amount: String, onAmountChange: (String) -> Unit){
@@ -209,7 +260,9 @@ fun CardWithTextFieldAndTitle(amount: String, onAmountChange: (String) -> Unit){
                 Image(
                     painter = painterResource(id = R.drawable.philippine_peso),
                     contentDescription = "add_fund_icon",
-                    modifier = Modifier.size(33.dp).alpha(0.7f)
+                    modifier = Modifier
+                        .size(33.dp)
+                        .alpha(0.7f)
                 )
             },
             shape = MaterialTheme.shapes.medium,

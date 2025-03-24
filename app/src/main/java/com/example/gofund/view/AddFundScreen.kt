@@ -84,7 +84,7 @@ fun AddFundScreen(navController: NavController){
                         onClick = {
                             navController.popBackStack()
                             isButtonEnabled = !isButtonEnabled
-                            
+
 
                         },
                         enabled = isButtonEnabled
@@ -159,22 +159,27 @@ fun AddFundScreen(navController: NavController){
                         return@AddFundButtons
                     }
                     totalAmount += amount.toInt()
+                    var newTotalAmount = checkIfHigherThanMax(totalAmount)
+                    totalAmount = newTotalAmount
                     initialAmount += amount.toInt()
+                    var newInitialAmount = checkIfHigherThanMax(initialAmount)
+                    initialAmount = newInitialAmount
                     Log.d("AMOUNT", "$totalAmount $initialAmount")
-                    dbRef.child(userID.toString()).child("totalAmount").setValue(totalAmount)
-                    dbRef.child(userID.toString()).child("initialAmount").setValue(initialAmount)
+                    dbRef.child(userID.toString()).child("totalAmount").setValue(newTotalAmount)
+                    dbRef.child(userID.toString()).child("initialAmount").setValue(newInitialAmount)
                     amount = ""
-                    navController.popBackStack()
                 }
 
             )
         }
     }
-
+}
+fun checkIfHigherThanMax(amount: Int): Int{
+    return if (amount > 100000) 100000 else amount
 }
 
 @Composable
-fun CircularProgressBarAndTotal(currentAmount: Int, initialAmount: Int){
+fun CircularProgressBarAndTotal(currentAmount: Int, initialAmount: Int, isForEditFund: Boolean = false){
     Row(
         modifier = Modifier
             .padding(15.dp)
@@ -197,7 +202,7 @@ fun CircularProgressBarAndTotal(currentAmount: Int, initialAmount: Int){
             Text(
                 modifier = Modifier
                     .fillMaxWidth(),
-                text = currentAmount.toString(),
+                text = if (isForEditFund) checkIfLowerThanZero(currentAmount).toString() else checkIfHigherThanMax(currentAmount).toString(),
                 fontFamily = IntroFamily,
                 color = MaterialTheme.colorScheme.tertiary,
                 fontSize = 40.sp,
@@ -214,7 +219,7 @@ fun CircularProgressBarAndTotal(currentAmount: Int, initialAmount: Int){
             Text(
                 modifier = Modifier
                     .fillMaxWidth(),
-                text = initialAmount.toString(),
+                text = if (isForEditFund) checkIfLowerThanZero(initialAmount).toString() else checkIfHigherThanMax(initialAmount).toString(),
                 fontFamily = IntroFamily,
                 fontSize = 40.sp,
                 color = Color.Gray,
