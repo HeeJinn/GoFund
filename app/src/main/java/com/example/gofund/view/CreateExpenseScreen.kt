@@ -2,6 +2,7 @@ package com.example.gofund.view
 
 import android.icu.text.DateFormat
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -48,11 +51,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.PoppinsFamily
+import com.example.gofund.viewmodel.CreateExpenseViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -61,19 +66,20 @@ import java.util.Locale
 @Composable
 fun CreateExpenseScreen(
     navController: NavController,
+    viewModel: CreateExpenseViewModel = viewModel()
 ) {
     var selectedIndex by remember { mutableStateOf(0) }
+    var expenseType = if (selectedIndex == 0) "Expense" else "Investment"
     var title by remember { mutableStateOf("") }
-    var amount by remember { mutableStateOf("") } // Store amount as a string initially
+    var amount by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
+    // Generate timestamp
     val calendar = Calendar.getInstance().time
-    val dateFormat = SimpleDateFormat("M-d-yyyy", Locale.getDefault()) // Use "M-d-yyyy" for M-day-year
-    val timeStamp = dateFormat.format(calendar) // Format the date
-    Log.d("TIME_STAMP", timeStamp) // Output: 10-10-2024 (or the current date)
-
-    var maxTitleCharacters = 13
-    var maxAmountCharacters = 6
+    val dateFormat = SimpleDateFormat("M-d-yyyy", Locale.getDefault())
+    val timeStamp = dateFormat.format(calendar)
 
     Column(
         modifier = Modifier
@@ -94,33 +100,60 @@ fun CreateExpenseScreen(
             amount = amount,
             note = note,
             onAmountValueChange = { newAmount ->
-                // Validate input: only allow digits and enforce max length
-                if (newAmount.all { it.isDigit() } && newAmount.length <= maxAmountCharacters) {
+                if (newAmount.all { it.isDigit() } && newAmount.length <= 6) {
                     amount = newAmount
                 }
             },
             onValueTitleChange = { newTitle ->
-                if (newTitle.length <= maxTitleCharacters) {
+                if (newTitle.length <= 13) {
                     title = newTitle
                 }
             },
-            onNoteValueChange = {newNote ->
-                if (newNote.length <= 100){
+            onNoteValueChange = { newNote ->
+                if (newNote.length <= 100) {
                     note = newNote
                 }
-
             },
             onClearButtonClick = {
                 selectedIndex = 0
                 title = ""
                 amount = ""
                 note = ""
-                Log.d("CONTENT_BUTTON", "Clear Button Clicked")
             },
             onAddButtonClick = {
-                Log.d("CONTENT_BUTTON", "Add Button Clicked")
+                if (title.isBlank() || amount.isBlank()) {
+                    Toast.makeText(context, "Please fill title and amount", Toast.LENGTH_SHORT).show()
+                    return@ExpenseCard
+                }
+
+                isLoading = true
+                val amountValue = amount.toIntOrNull() ?: 0
+
+                viewModel.addNewExpense(
+                    expenseType = expenseType,
+                    amount = amountValue,
+                    title = title,
+                    note = note,
+                    timeStamp = timeStamp,
+                    onSuccess = {
+                        isLoading = false
+                        navController.popBackStack()
+                        Toast.makeText(context, "$expenseType added successfully", Toast.LENGTH_SHORT).show()
+                    },
+                    onFailure = { exception ->
+                        isLoading = false
+                        Toast.makeText(context, "Error: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
         )
+
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.padding(16.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 

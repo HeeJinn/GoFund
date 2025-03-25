@@ -46,15 +46,7 @@ fun InvestmentScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val fakeInvestRepo = listOf(
-            ExpenseTypeItem("investment", 100, "Gaming Laptop", "damn ive been dreaming for this item", "10-10-2024"),
-            ExpenseTypeItem("investment", 100, "Iphone 22", "damn ive been dreaming for this item", "10-10-2024"),
-            ExpenseTypeItem("investment", 100, "OnaHole Flesh", "damn ive been dreaming for this item", "10-10-2024"),
-            ExpenseTypeItem("investment", 100, "Gaming Laptop", "damn ive been dreaming for this item", "10-10-2024"),
-            ExpenseTypeItem("investment", 100, "Iphone 22", "damn ive been dreaming for this item", "10-10-2024"),
-            ExpenseTypeItem("investment", 100, "OnaHole Flesh", "damn ive been dreaming for this item", "10-10-2024"),
-            ExpenseTypeItem("investment", 100, "Gaming Laptop", "damn ive been dreaming for this item", "10-10-2024"),
-            ExpenseTypeItem("investment", 100, "Iphone 22", "damn ive been dreaming for this item", "10-10-2024"),
-            ExpenseTypeItem("investment", 100, "OnaHole Flesh", "damn ive been dreaming for this item", "10-10-2024"),
+            ExpenseTypeItem(key = "asd", expenseType = "investment", amount = 100, title = "Titw", note = "asdasd", timeStamp = "10-10-25")
         )
         ImageAndTotal(numberOfExpenses = fakeInvestRepo.size, typeOfExpense = "Investment")
         ViewAllButton(

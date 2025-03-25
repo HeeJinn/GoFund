@@ -44,17 +44,18 @@ import com.example.gofund.ui.theme.PoppinsFamily
 fun ExpenseScreen( navController: NavController){
     //fake repo remove later on hehe
     val fakeData = listOf(
-        ExpenseTypeItem("expense", 100000, "Burger", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+        ExpenseTypeItem(key = "asd", expenseType = "expense", amount = 100, title = "Titw", note = "asdasd", timeStamp = "10-10-25")
+//        ExpenseTypeItem("expense", 100000, "Burger", "yummy soo tastyy", "10-10-2024"),
+//        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+//        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+//        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
+//        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+//        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+//        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
+//        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+//        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+//        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+//        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
         )
     Column(
         modifier = Modifier
@@ -90,8 +91,10 @@ fun ExpenseScreen( navController: NavController){
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(fakeData.take(5)) { data ->
-                    ExpenseItemHolder(expenseItem = data, navController = navController)
+                if (fakeData.isNotEmpty()){
+                    items(fakeData.take(5)) { data ->
+                        ExpenseItemHolder(expenseItem = data, navController = navController)
+                    }
                 }
             }
         }
@@ -270,7 +273,7 @@ fun PreviewExpenseScreen(){
 @Composable
 fun PreviewItem(){
     val navController = rememberNavController()
-    val fakeData = ExpenseTypeItem("Expense", 100, "Burger", "yummy soo tastyy", "10-10-2024")
+    val fakeData = ExpenseTypeItem(key = "asd", expenseType = "expense", amount = 100, title = "Titw", note = "asdasd", timeStamp = "10-10-25")
     ExpenseItemHolder(fakeData, navController)
 
 }

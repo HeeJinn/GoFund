@@ -70,17 +70,18 @@ fun WholeExpenseScreen(navController: NavController){
         }
     ){
         val fakeData = listOf(
-            ExpenseTypeItem("expense", 100000, "Burger", "yummy soo tastyy", "10-10-2024"),
-            ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-            ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-            ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
-            ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-            ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-            ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
-            ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-            ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-            ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-            ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+            ExpenseTypeItem(key = "asd", expenseType = "expense", amount = 100, title = "Titw", note = "asdasd", timeStamp = "10-10-25")
+//            ExpenseTypeItem("expense", 100000, "Burger", "yummy soo tastyy", "10-10-2024"),
+//            ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+//            ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+//            ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
+//            ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+//            ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+//            ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
+//            ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+//            ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
+//            ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
+//            ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
         )
 
         LazyColumn(
