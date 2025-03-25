@@ -55,6 +55,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
+import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.PoppinsFamily
 import com.example.gofund.viewmodel.CreateExpenseViewModel
@@ -137,7 +138,12 @@ fun CreateExpenseScreen(
                     timeStamp = timeStamp,
                     onSuccess = {
                         isLoading = false
-                        navController.popBackStack()
+                        navController.navigate(Screen.ContentScreen.route) {
+                            popUpTo(Screen.ContentScreen.route) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
                         Toast.makeText(context, "$expenseType added successfully", Toast.LENGTH_SHORT).show()
                     },
                     onFailure = { exception ->

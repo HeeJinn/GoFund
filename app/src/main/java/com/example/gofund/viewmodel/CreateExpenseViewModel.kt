@@ -1,5 +1,7 @@
 package com.example.gofund.viewmodel
 
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 
 import com.google.firebase.Firebase
@@ -75,7 +77,12 @@ class CreateExpenseViewModel : ViewModel() {
             userRef.child("totalAmount").get().addOnSuccessListener { totalAmountSnapshot ->
                 val currentTotalAmount = totalAmountSnapshot.getValue(Int::class.java) ?: 0
 
+
                 updates["numberOfExpense"] = checkIfHigherThanMax(currentExpenseCount + 1)
+                if (currentTotalAmount < amountValue){
+                    onFailure(Exception("Total amount cannot be lower than amount"))
+                    return@addOnSuccessListener
+                }
                 updates["totalAmount"] = checkIfLowerThanZero(currentTotalAmount - amountValue)
 
                 userRef.updateChildren(updates)

@@ -18,11 +18,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
@@ -38,68 +42,91 @@ import com.example.gofund.model.ExpenseTypeItem
 import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.PoppinsFamily
+import com.example.gofund.viewmodel.ExpenseViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseScreen( navController: NavController){
-    //fake repo remove later on hehe
-    val fakeData = listOf(
-        ExpenseTypeItem(key = "asd", expenseType = "expense", amount = 100, title = "Titw", note = "asdasd", timeStamp = "10-10-25")
-//        ExpenseTypeItem("expense", 100000, "Burger", "yummy soo tastyy", "10-10-2024"),
-//        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-//        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-//        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
-//        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-//        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-//        ExpenseTypeItem("expense", 100, "Burger", "yummy soo tastyy", "10-10-2024"),
-//        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-//        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-//        ExpenseTypeItem("expense", 100, "Fries", "yummy soo tastyy", "10-10-2024"),
-//        ExpenseTypeItem("expense", 100, "Chicken", "yummy soo tastyy", "10-10-2024"),
-        )
+fun ExpenseScreen(
+    navController: NavController,
+    viewModel: ExpenseViewModel = viewModel()
+) {
+    val expenses = viewModel.expenses
+    val isLoading = viewModel.isLoading
+
+    // Debugging effect
+    LaunchedEffect(Unit) {
+        Log.d("ExpenseScreen", "isLoading: $isLoading, expenses: ${expenses.size}")
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ImageAndTotal(numberOfExpenses = fakeData.size, typeOfExpense = "Expense")
-        ViewAllButton(
-            typeOfExpense = "Expense",
-            onViewAllClick = {
-                Log.d("CONTENT_BUTTON", "View All Clicked")
-                navController.navigate(Screen.WholeExpenseScreen.route){
-
-                }
-            }
-        )
-        Card(
-            modifier = Modifier
-                .padding(horizontal = 20.dp, vertical = 10.dp)
-                .fillMaxWidth()
-                .height(400.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            )
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(vertical = 10.dp),
-                verticalArrangement = Arrangement.Top,
+        if (isLoading) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (fakeData.isNotEmpty()){
-                    items(fakeData.take(5)) { data ->
-                        ExpenseItemHolder(expenseItem = data, navController = navController)
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                // Timeout check
+                LaunchedEffect(Unit) {
+                    delay(10000) // 10 seconds timeout
+                    if (isLoading) {
+                        Log.w("ExpenseScreen", "Loading timeout reached")
+                    }
+                }
+            }
+        } else {
+            // Your original UI remains exactly the same
+            ImageAndTotal(
+                numberOfExpenses = expenses.size,
+                typeOfExpense = "Expense"
+            )
+
+            ViewAllButton(
+                typeOfExpense = "Expense",
+                onViewAllClick = {
+                    navController.navigate(Screen.WholeExpenseScreen.route)
+                }
+            )
+
+            Card(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                    .fillMaxWidth()
+                    .height(400.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(vertical = 10.dp),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (expenses.isNotEmpty()) {
+                        items(expenses.take(5)) { data ->
+                            ExpenseItemHolder(
+                                expenseItem = data,
+                                navController = navController
+                            )
+                        }
                     }
                 }
             }
         }
     }
-
 }
 
 @Composable
