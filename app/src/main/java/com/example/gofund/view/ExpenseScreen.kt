@@ -186,7 +186,7 @@ fun ImageAndTotal(numberOfExpenses: Int, typeOfExpense: String){
 
 @Composable
 fun ExpenseItemHolder(expenseItem: ExpenseTypeItem, navController: NavController){
-    val expenseTypeImage = if (expenseItem.expenseType == "expense") painterResource(id = R.drawable.expense_type) else painterResource(id = R.drawable.investment_type)
+    val expenseTypeImage = if (expenseItem.expenseType == "Expense") painterResource(id = R.drawable.expense_type) else painterResource(id = R.drawable.investment_type)
     Card(
         modifier = Modifier
             .padding(horizontal = 20.dp, vertical = 5.dp)

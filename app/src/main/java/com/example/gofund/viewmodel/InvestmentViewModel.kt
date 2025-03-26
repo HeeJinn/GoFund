@@ -1,9 +1,9 @@
 package com.example.gofund.viewmodel
 
+import androidx.lifecycle.ViewModel
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
 import com.example.gofund.model.ExpenseTypeItem
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -12,9 +12,9 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
-class ExpenseViewModel : ViewModel() {
-    private val _expenses = mutableStateListOf<ExpenseTypeItem>()
-    val expenses: List<ExpenseTypeItem> get() = _expenses
+class InvestmentViewModel: ViewModel() {
+    private val _investments = mutableStateListOf<ExpenseTypeItem>()
+    val investments: List<ExpenseTypeItem> get() = _investments
 
     private val _isLoading = mutableStateOf(true)
     val isLoading: Boolean get() = _isLoading.value
@@ -46,18 +46,18 @@ class ExpenseViewModel : ViewModel() {
                         val tempList = mutableListOf<ExpenseTypeItem>()
                         snapshot.children.forEach { child ->
                             child.getValue(ExpenseTypeItem::class.java)
-                                ?.takeIf { it.expenseType.equals("Expense", ignoreCase = true) }
+                                ?.takeIf { it.expenseType.equals("Investment", ignoreCase = true) }
                                 ?.copy(key = child.key ?: "")
                                 ?.let { tempList.add(it) }
                         }
 
-                        _expenses.clear()
-                        _expenses.addAll(tempList)
+                        _investments.clear()
+                        _investments.addAll(tempList)
                         _isLoading.value = false
-                        Log.d("ExpenseVM", "Loaded ${tempList.size} expenses (filtered)")
+                        Log.d("InvestmentVM", "Loaded ${tempList.size} investments")
                     } catch (e: Exception) {
                         _isLoading.value = false
-                        Log.e("ExpenseVM", "Error parsing data", e)
+                        Log.e("InvestmentVM", "Error parsing data", e)
                     }
                 }
 

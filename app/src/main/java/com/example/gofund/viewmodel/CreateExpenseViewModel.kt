@@ -1,7 +1,5 @@
 package com.example.gofund.viewmodel
 
-import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 
 import com.google.firebase.Firebase
@@ -18,7 +16,7 @@ class CreateExpenseViewModel : ViewModel() {
     private val userRef = firebase.getReference("goFund").child(userID!!)
 
     fun addNewExpense(
-        expenseType: String,
+        expenseType: String,  // This should be either "Expense" or "Investment"
         amount: Int,
         title: String,
         note: String,
@@ -31,7 +29,7 @@ class CreateExpenseViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     val expenseTypeList = task.result.value as? Map<*, *>
                     val expenseItem = ExpenseTypeItem(
-                        key = "", // Will be set later
+                        key = "",
                         expenseType = expenseType,
                         amount = amount,
                         title = title,
@@ -64,6 +62,7 @@ class CreateExpenseViewModel : ViewModel() {
 
         val expenseWithKey = expenseItem.copy(key = key)
         val amountValue = expenseItem.amount ?: 0
+        val isInvestment = expenseItem.expenseType.equals("Investment", ignoreCase = true)
 
         // Create transaction updates
         val updates = hashMapOf<String, Any>(
@@ -71,19 +70,22 @@ class CreateExpenseViewModel : ViewModel() {
         )
 
         // Get current values first to calculate new totals
-        userRef.child("numberOfExpense").get().addOnSuccessListener { expenseCountSnapshot ->
-            val currentExpenseCount = expenseCountSnapshot.getValue(Int::class.java) ?: 0
+        userRef.child("totalAmount").get().addOnSuccessListener { totalAmountSnapshot ->
+            val currentTotalAmount = totalAmountSnapshot.getValue(Int::class.java) ?: 0
 
-            userRef.child("totalAmount").get().addOnSuccessListener { totalAmountSnapshot ->
-                val currentTotalAmount = totalAmountSnapshot.getValue(Int::class.java) ?: 0
+            if (currentTotalAmount < amountValue) {
+                onFailure(Exception("Total amount cannot be lower than expense amount"))
+                return@addOnSuccessListener
+            }
 
+            // Update the appropriate counter based on expense type
+            val counterField = if (isInvestment) "numberOfInvestments" else "numberOfExpense"
 
-                updates["numberOfExpense"] = checkIfHigherThanMax(currentExpenseCount + 1)
-                if (currentTotalAmount < amountValue){
-                    onFailure(Exception("Total amount cannot be lower than amount"))
-                    return@addOnSuccessListener
-                }
+            userRef.child(counterField).get().addOnSuccessListener { counterSnapshot ->
+                val currentCount = counterSnapshot.getValue(Int::class.java) ?: 0
+
                 updates["totalAmount"] = checkIfLowerThanZero(currentTotalAmount - amountValue)
+                updates[counterField] = checkIfHigherThanMax(currentCount + 1)
 
                 userRef.updateChildren(updates)
                     .addOnSuccessListener { onSuccess() }

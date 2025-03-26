@@ -87,7 +87,7 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) 
             }
         }
     }
-    Log.d("AMOUNT", "$totalAmount $initialAmount")
+    Log.d("AMOUNT", "$totalAmount $initialAmount, $userID")
 
     Column(
         modifier = Modifier
