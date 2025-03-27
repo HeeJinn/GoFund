@@ -1,12 +1,14 @@
 package com.example.gofund.view
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExitToApp
+import androidx.compose.material3.AlertDialog // Keep this
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -16,12 +18,17 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton // Keep this
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview // Add if needed for previewing this screen specifically
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -43,6 +50,11 @@ import com.google.firebase.auth.FirebaseAuth
 fun ContentMainScreen(navController: NavHostController){
     val bottomNavController = rememberNavController()
     val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    var showLogOutDialog by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = true) {
+        showLogOutDialog = true
+    }
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -57,30 +69,76 @@ fun ContentMainScreen(navController: NavHostController){
                 actions = {
                     IconButton(
                         onClick = {
-                            Log.d("CURRENT_USER_ID", auth.currentUser?.uid.toString())
-                            navController.navigate(Screen.LoginScreen.route){
-                                popUpTo(Screen.ContentScreen.route){
-                                    inclusive = true
-                                }
-                            }
-                            auth.signOut()
-                            Log.d("CURRENT_USER_ID", auth.currentUser?.uid.toString())
+                            Log.d("LOGOUT_CLICK", "Logout icon clicked, showing dialog.")
+                            showLogOutDialog = true
                         }
-                    ) {Icon(imageVector = Icons.Rounded.ExitToApp, contentDescription = "Logout", modifier = Modifier.size(30.dp)) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.ExitToApp,
+                            contentDescription = "Logout",
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
                 }
             )
         },
-        bottomBar = {BottomBar(navController = bottomNavController)}
+        bottomBar = { BottomBar(navController = bottomNavController) }
     ) { innerPadding ->
         Surface(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // Use a NavHost *only* for the bottom bar screens
-            BottomNavGraph(navController = bottomNavController, mainNavController = navController)
 
+            BottomNavGraph(navController = bottomNavController, mainNavController = navController)
         }
+    }
+
+    if (showLogOutDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                // Dismiss the dialog when clicking outside or pressing back button
+                showLogOutDialog = false
+                Log.d("LOGOUT_DIALOG", "Dialog dismissed via outside click/back press.")
+            },
+            title = {
+                Text(text = "Confirm Logout") // More descriptive title
+            },
+            text = {
+                Text("Are you sure you want to log out?") // More descriptive text
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogOutDialog = false
+                        Log.d("LOGOUT_CONFIRM", "Logout confirmed. Signing out and navigating.")
+                        Log.d("CURRENT_USER_ID_BEFORE", auth.currentUser?.uid.toString())
+
+                        auth.signOut()
+
+                        navController.navigate(Screen.LoginScreen.route) {
+                            popUpTo(Screen.ContentScreen.route) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                        Log.d("CURRENT_USER_ID_AFTER", auth.currentUser?.uid.toString())
+                    }
+                ) {
+                    Text("Logout")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showLogOutDialog = false
+                        Log.d("LOGOUT_DISMISS", "Logout dismissed via button click.")
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -93,12 +151,11 @@ fun BottomBar(navController: NavHostController){
         BottomBarScreen.Investment_Screen,
         BottomBarScreen.Report_Screen,
     )
-    val navBackStackEntry = navController.currentBackStackEntryAsState().value
+    val navBackStackEntry by navController.currentBackStackEntryAsState() // Use 'by' delegate
     val currentDestination = navBackStackEntry?.destination
 
     NavigationBar(
         containerColor = Color(LightModeLightBlue.value),
-
     ) {
         screens.forEach { screen ->
             AddItem(
@@ -108,7 +165,6 @@ fun BottomBar(navController: NavHostController){
             )
         }
     }
-
 }
 
 @Composable
@@ -139,10 +195,20 @@ fun RowScope.AddItem(
         colors = NavigationBarItemDefaults.colors(
             selectedIconColor = Color(LightModeYellow.value),
             selectedTextColor = Color(LightModeYellow.value),
-            indicatorColor = Color.DarkGray,
+            indicatorColor = Color.DarkGray, // Consider adjusting indicator color for visibility
             unselectedIconColor = Color.White,
             unselectedTextColor = Color.White
         )
-
     )
+}
+
+// Optional: Preview function for ContentMainScreen if needed
+@Preview(showBackground = true)
+@Composable
+fun PreviewContentMainScreen() {
+    // You'll need a dummy NavHostController for the preview
+    val dummyNavController = rememberNavController()
+    ContentMainScreen(navController = dummyNavController)
+    // Note: The preview won't show the dialog by default unless you manipulate
+    // the 'showLogOutDialog' state specifically for the preview.
 }
