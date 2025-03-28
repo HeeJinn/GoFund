@@ -2,158 +2,105 @@ package com.example.gofund.viewmodel // Or your preferred package
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.gofund.model.UserData
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await // Import await()
 
-// Define a UI state holder data class
-data class HomeUiState(
-    val isLoading: Boolean = true,
-    val errorMessage: String? = null,
-    val isUserLoggedIn: Boolean = true, // Assume logged in initially
-    val userName: String = "Loading...",
-    val totalAmount: Int = 0,
-    val initialAmount: Int = 0
-)
+// Sealed interface to represent the state of data loading
+sealed interface UserDataResult {
+    data object Loading : UserDataResult
+    data class Success(val userData: UserData) : UserDataResult
+    data class Error(val message: String) : UserDataResult
+}
 
+// Make sure UserData class is correctly defined (and remove password if stored!)
+// data class UserData(val email: String = "", /* val password: String = "", NO! */ val userName: String = "", val totalAmount: Int = 0, val initialAmount: Int = 0)
+
+
+// You can add this logic to BSheetViewModel or create a new HomeViewModel
+// Using HomeViewModel for clarity here:
 class HomeViewModel : ViewModel() {
 
-    private val TAG = "HOME_VIEWMODEL_PROCESS" // Specific TAG for ViewModel
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    // Ensure you use the correct Database URL
+    private val database: FirebaseDatabase = FirebaseDatabase.getInstance("https://gofund-1ae38-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    private var userRef: DatabaseReference? = null
+    private var valueEventListener: ValueEventListener? = null
 
-    // Firebase references (initialized once)
-    private val auth: FirebaseAuth = Firebase.auth
-    // Consider injecting these or using a Singleton pattern for better testability
-    private val database = Firebase.database("https://gofund-1ae38-default-rtdb.asia-southeast1.firebasedatabase.app/")
-    private var dbRef: DatabaseReference? = null // Reference specific to user
-
-    // UI State Flow
-    private val _uiState = MutableStateFlow(HomeUiState())
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    // StateFlow to hold the result (Loading, Success, or Error)
+    private val _userDataState = MutableStateFlow<UserDataResult>(UserDataResult.Loading)
+    val userDataState: StateFlow<UserDataResult> = _userDataState.asStateFlow()
 
     init {
-        Log.d(TAG, "ViewModel initialized.")
-        observeAuthState() // Start observing auth state
-        // Initial fetch based on current user (if any)
-        fetchUserData(auth.currentUser?.uid)
+        startObservingUserData()
     }
 
-    // Optional: Observe auth state changes if needed for real-time updates on login/logout
-    private fun observeAuthState() {
-        // If you need the screen to react instantly to login/logout without restarting the app,
-        // you'd add an AuthStateListener here and call fetchUserData accordingly.
-        // For simplicity, we'll rely on the initial fetch and potential recomposition/ViewModel recreation.
-        Log.d(TAG, "Auth state observation setup (if implemented).")
-    }
-
-    private fun fetchUserData(userId: String?) {
-        Log.d(TAG, "Attempting to fetch user data for UserID: $userId")
+    private fun startObservingUserData() {
+        val userId = auth.currentUser?.uid
         if (userId == null) {
-            Log.w(TAG, "User ID is null. Setting logged out state.")
-            _uiState.update {
-                it.copy(
-                    isLoading = false,
-                    isUserLoggedIn = false,
-                    userName = "Not signed in",
-                    errorMessage = null // Clear previous errors
-                )
-            }
-            return
+            _userDataState.value = UserDataResult.Error("User not logged in.")
+            return // Stop if no user is logged in
         }
 
-        // Set user-specific database reference
-        dbRef = database.getReference("goFund").child(userId)
+        // Define the database reference
+        userRef = database.getReference("goFund").child(userId)
 
-        // Launch coroutine to fetch data
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) } // Set loading state
-            try {
-                Log.d(TAG, "Calling Firebase get().await() for user data.")
-                val snapshot = dbRef!!.get().await() // Use await() for cleaner async code
-
-                Log.d(TAG, "Firebase get() completed. Snapshot exists: ${snapshot.exists()}")
-                if (snapshot.exists()) {
-                    try {
-                        Log.d(TAG, "Attempting to parse UserData...")
+        // Create the listener if it doesn't exist
+        if (valueEventListener == null) {
+            valueEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        // Try to parse the data
                         val userData = snapshot.getValue(UserData::class.java)
-
                         if (userData != null) {
-                            Log.d(TAG, "Successfully parsed UserData.")
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    isUserLoggedIn = true,
-                                    userName = userData.userName ?: "User",
-                                    totalAmount = userData.totalAmount ?: 0,
-                                    initialAmount = userData.initialAmount ?: 0,
-                                    errorMessage = null
-                                )
-                            }
+                            // Update StateFlow on successful data fetch/update
+                            _userDataState.value = UserDataResult.Success(userData)
+                            Log.d("HomeViewModel", "Realtime update received: $userData")
                         } else {
-                            // Should ideally not happen if snapshot exists but parsing returns null
-                            Log.e(TAG,"UserData parsed as null despite snapshot existing.")
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    isUserLoggedIn = true, // Still logged in
-                                    userName = "Error: Invalid data",
-                                    errorMessage = "Could not read user data structure."
-                                )
-                            }
+                            _userDataState.value = UserDataResult.Error("Failed to parse user data.")
+                            Log.w("HomeViewModel", "Snapshot exists but failed to parse UserData")
                         }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "!!!!!! FAILED TO PARSE UserData !!!!!!", e)
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                isUserLoggedIn = true, // Still logged in
-                                userName = "Error: Parse failed",
-                                errorMessage = "Error parsing user data: ${e.message}"
-                            )
-                        }
-                    }
-                } else {
-                    Log.w(TAG, "User node does not exist for ID: $userId.")
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isUserLoggedIn = false, // Treat non-existent user as logged out/error
-                            userName = "User not found",
-                            errorMessage = "User data not found."
-                        )
+                    } else {
+                        // Handle case where the user node doesn't exist in DB
+                        _userDataState.value = UserDataResult.Error("User data node not found.")
+                        Log.w("HomeViewModel", "User data node does not exist for userId: $userId")
+                        // You might want to navigate the user to a setup screen here
                     }
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Firebase get() failed with exception.", e)
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        isUserLoggedIn = true, // We assume still logged in, just failed to get data
-                        userName = "Error",
-                        errorMessage = "Failed to fetch data: ${e.message}"
-                    )
+
+                override fun onCancelled(error: DatabaseError) {
+                    // Handle database errors (e.g., permissions denied)
+                    Log.e("HomeViewModel", "Firebase listener cancelled: ${error.message}")
+                    _userDataState.value = UserDataResult.Error("Database error: ${error.message}")
+                    // Remove the listener if cancelled to prevent potential issues
+                    stopObservingUserData()
                 }
             }
+            // Attach the listener
+            userRef?.addValueEventListener(valueEventListener!!)
+            Log.d("HomeViewModel", "Attached listener for userId: $userId")
         }
     }
 
-    // Optional: Function to manually refresh data
-    fun refreshData() {
-        fetchUserData(auth.currentUser?.uid)
+    private fun stopObservingUserData() {
+        // Remove the listener when it's no longer needed
+        valueEventListener?.let { listener ->
+            userRef?.removeEventListener(listener)
+            Log.d("HomeViewModel", "Removed listener.")
+        }
+        valueEventListener = null // Clear the reference
     }
 
+    // IMPORTANT: Remove the listener when the ViewModel is cleared (destroyed)
     override fun onCleared() {
         super.onCleared()
-        Log.d(TAG, "HomeViewModel onCleared.")
-        // No listeners to remove in this version
+        stopObservingUserData()
     }
 }

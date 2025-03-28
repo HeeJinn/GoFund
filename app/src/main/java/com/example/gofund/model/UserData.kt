@@ -10,6 +10,7 @@
         val initialAmount : Int? = 0,
         val numberOfExpense: Int? = 0,
         val numberOfInvestments: Int? = 0,
+        val fundLimit: Int? = 0,
         val expenseTypeList: Map<String, ExpenseTypeItem>? = null,
     )
 
