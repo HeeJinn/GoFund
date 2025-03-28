@@ -1,6 +1,5 @@
 package com.example.gofund.view
 
-import LoginViewModel
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,6 +61,7 @@ import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.LightModeLightBlue
 import com.example.gofund.ui.theme.LightModeYellow
 import com.example.gofund.ui.theme.PoppinsFamily
+import com.example.gofund.viewmodel.LoginViewModel
 
 @Composable
 fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()){

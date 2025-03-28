@@ -1,7 +1,10 @@
 package com.example.gofund.view
 
-import LoginViewModel
+import com.example.gofund.viewmodel.LoginViewModel
+import android.app.Activity
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,13 +18,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -51,20 +59,18 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.compose.viewModel // Keep this
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
-import com.example.gofund.navigations.BottomBarScreen
 import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.GoFundTheme
 import com.example.gofund.ui.theme.IntroFamily
-import com.example.gofund.ui.theme.LightModeLightBlue
+import com.example.gofund.ui.theme.LightModeLightBlue // Assuming this theme color exists
 import com.example.gofund.ui.theme.PoppinsFamily
 import com.example.gofund.ui.theme.SeaweedScriptFamily
 
 @Composable
-fun LogoText(){
+fun LogoText(){ // Copied from your previous input
     Box(
         modifier = Modifier
             .width(300.dp)
@@ -104,7 +110,7 @@ fun LogoText(){
 }
 
 @Composable
-fun EmailNameTextField(username : String, onUsernameValueChange : (String) -> Unit){
+fun EmailNameTextField(username : String, onUsernameValueChange : (String) -> Unit){ // Copied from your previous input
     var isFocused by remember { mutableStateOf(false) }
     var focusedLabelColor = if (username.isNotEmpty() || isFocused) Color.White else Color.LightGray
     val focusManager = LocalFocusManager.current
@@ -123,7 +129,6 @@ fun EmailNameTextField(username : String, onUsernameValueChange : (String) -> Un
         label = { Text(
             text = "Email",
             fontFamily = PoppinsFamily,
-            fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         ) },
         textStyle = TextStyle(
@@ -137,25 +142,27 @@ fun EmailNameTextField(username : String, onUsernameValueChange : (String) -> Un
             focusedLabelColor = focusedLabelColor,
             focusedLeadingIconColor = MaterialTheme.colorScheme.background,
             unfocusedLabelColor = focusedLabelColor,
+            cursorColor = Color.Black // Added for visibility
         ),
         placeholder = {Text(text = "Enter valid email", color = Color.LightGray)},
         leadingIcon ={
-                Icon(imageVector = Icons.Rounded.Email, contentDescription = "Email")
+            Icon(imageVector = Icons.Rounded.Email, contentDescription = "Email")
 
         },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Email,
-            imeAction = ImeAction.Done
+            imeAction = ImeAction.Next // Changed to Next for better flow
         ),
         keyboardActions = KeyboardActions(
-            onDone = {focusManager.clearFocus()}
+            onNext = {focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Down)} // Move focus down
+            // onDone = {focusManager.clearFocus()} // Can keep if Next isn't desired
         )
 
     )
 }
 
 @Composable
-fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswordValueChange:(String) -> Unit){
+fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswordValueChange:(String) -> Unit){ // Copied from your previous input
     var isFocused by remember { mutableStateOf(false) }
     var focusedLabelColor = if (password.isNotEmpty() || isFocused) Color.White else Color.LightGray
     var passVisibility by remember { mutableStateOf(false) }
@@ -182,7 +189,6 @@ fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswor
         label = { Text(
             text = "Password",
             fontFamily = PoppinsFamily,
-            fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         ) },
         singleLine = true,
@@ -194,9 +200,10 @@ fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswor
             focusedLeadingIconColor = MaterialTheme.colorScheme.background,
             unfocusedLabelColor = focusedLabelColor,  // Label color when not focused
             focusedTrailingIconColor = MaterialTheme.colorScheme.background,
+            cursorColor = Color.Black // Added for visibility
         ),
         leadingIcon = {
-                Icon(imageVector = Icons.Rounded.Lock, contentDescription = "Email")
+            Icon(imageVector = Icons.Rounded.Lock, contentDescription = "Password")
 
         },
         trailingIcon = {
@@ -205,7 +212,7 @@ fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswor
                     passVisibility = !passVisibility
                 }
             ) {
-                Icon(painter = icon, contentDescription = "visibility")
+                Icon(painter = icon, contentDescription = "Toggle password visibility")
             }
         },
         visualTransformation = if (passVisibility) VisualTransformation.None else PasswordVisualTransformation(),
@@ -220,29 +227,59 @@ fun PasswordTextField(modifier: Modifier = Modifier, password: String, onPasswor
 }
 
 @Composable
-fun ForgotPassword(modifier: Modifier = Modifier){
-    Text(
+fun RowAreaForRememberMeAndForgotPass(modifier: Modifier = Modifier, checkedState : Boolean, onCheckChange: (Boolean) -> Unit, onForgotPassClick: () -> Unit){
+    Row (
         modifier = modifier
-            .width(300.dp)
-            .padding(end = 10.dp)
-            .clickable {
-
-            },
-        text = "forgot password",
-        textAlign = TextAlign.End,
-        fontFamily = PoppinsFamily,
-        color = Color.White,
-        style = TextStyle(
-            fontSize = 14.sp,
-            textDecoration = TextDecoration.Underline
-        )
-    )
+            .wrapContentHeight()
+            .background(color = Color.Transparent)
+            .width(300.dp), // Your original width
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Row(
+            modifier = Modifier
+                .weight(1f), // Your original weight
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center // Your original arrangement
+        ) {
+            Checkbox(
+                modifier = Modifier, // Your original modifier
+                checked = checkedState,
+                onCheckedChange = onCheckChange, // Your original direct callback
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Color.White,
+                    uncheckedColor = Color.White,
+                    // Using your original color setup, though MaterialTheme is generally preferred
+                    checkmarkColor = MaterialTheme.colorScheme.primary
+                )
+            )
+            // No extra Spacer here as per your original code
+            Text(
+                text = "Remember me",
+                textAlign = TextAlign.Start,
+                fontFamily = PoppinsFamily,
+                color = Color.White,
+                fontSize = 12.sp,
+            )
+        }
+        TextButton(
+            modifier = Modifier
+                .weight(1f), // Your original weight
+            onClick = onForgotPassClick
+        ) {
+            Text(
+                text = "forgot password", // Your original text
+                fontFamily = PoppinsFamily,
+                textDecoration = TextDecoration.Underline,
+                color = Color.White,
+                fontSize = 12.sp,
+            )
+        }
+    }
 }
 
-
 @Composable
-fun LoginButton(navController: NavController,modifier: Modifier = Modifier, onClick: () -> Unit){
-    var isClicked by remember { mutableStateOf(false) }
+fun LoginButton(modifier: Modifier = Modifier, onClick: () -> Unit){ // Removed NavController param, not needed
     Button(
         modifier = modifier
             .width(200.dp),
@@ -254,7 +291,6 @@ fun LoginButton(navController: NavController,modifier: Modifier = Modifier, onCl
             style = TextStyle(
                 fontSize = 22.sp,
                 fontFamily = IntroFamily,
-                fontWeight = FontWeight.Bold,
             ),
             color = Color.Black,
             text = "Login")
@@ -262,23 +298,21 @@ fun LoginButton(navController: NavController,modifier: Modifier = Modifier, onCl
 }
 
 @Composable
-fun SignUpButton(modifier: Modifier = Modifier, navController: NavController, onClick:() -> Unit){
-    var isClicked by remember { mutableStateOf(false) }
+fun SignUpButton(modifier: Modifier = Modifier, onClick:() -> Unit){ // Copied from your previous input
     Button(
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
-
         ),
         border = BorderStroke(width = 1.dp, color = Color.White),
         onClick = onClick
     ) {
-        Text(text= "Don't have an account? Sign up", color = Color.White)
+        Text(text= "Don't have an account? Sign up", color = Color.White, fontSize = 12.sp) // Slightly smaller text
     }
 }
 
 @Composable
-fun SpacerWhiteLine(modifier: Modifier = Modifier){
+fun SpacerWhiteLine(modifier: Modifier = Modifier){ // Copied from your previous input
     Row(
         modifier = modifier
             .width(300.dp),
@@ -286,45 +320,93 @@ fun SpacerWhiteLine(modifier: Modifier = Modifier){
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(
-            modifier = modifier
+            modifier = Modifier // Removed modifier = modifier
                 .weight(1f)
                 .padding(horizontal = 10.dp)
                 .height(1.dp)
                 .background(Color.White)
         )
-        Text(modifier = modifier.padding(horizontal = 10.dp),text = "OR", color = Color.White, fontSize = 17.sp, fontFamily = PoppinsFamily, fontWeight = FontWeight.Bold)
+        Text(modifier = Modifier.padding(horizontal = 10.dp),text = "OR", color = Color.White, fontSize = 17.sp, fontFamily = PoppinsFamily, fontWeight = FontWeight.Bold)
         Spacer(
-            modifier = modifier
+            modifier = Modifier // Removed modifier = modifier
                 .weight(1f)
                 .padding(horizontal = 10.dp, vertical = 20.dp)
                 .height(1.dp)
                 .background(Color.White)
         )
     }
-
 }
-
-@Preview
-@Composable
-fun WhiteSpacePreview(){
-    SpacerWhiteLine()
-}
+// --- End of Unchanged UI Composables ---
 
 
 @Composable
-fun LoginScreen(navController: NavController, LoginViewModel: LoginViewModel = viewModel()) {
-    val context = LocalContext.current // Get context
+fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) { // Use correct ViewModel instance
+    val context = LocalContext.current
 
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var emailInput by remember { mutableStateOf("") }
+    var passwordInput by remember { mutableStateOf("") }
+    var rememberMeChecked by remember { mutableStateOf(false) }
+
+
     var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) } // Use nullable String for error message
+    var showExitDialog by remember { mutableStateOf(false) }
+    val activity = context as? Activity
+
+    val userPreferences by loginViewModel.userPreferences.collectAsState()
+
+    LaunchedEffect(userPreferences) {
+        // Check if the DataStore value is not the default empty/false AND local state is still empty/false
+        if (userPreferences.rememberMe && userPreferences.email.isNotEmpty() && emailInput.isEmpty()) {
+            Log.d("LoginScreen", "Loading credentials from DataStore: Email=${userPreferences.email}")
+            emailInput = userPreferences.email
+            passwordInput = userPreferences.password // Load password (INSECURE)
+            rememberMeChecked = true // Set checkbox based on loaded preference
+        } else if (!userPreferences.rememberMe && emailInput.isEmpty() && passwordInput.isEmpty()) {
+            // If remember me was explicitly false in prefs, ensure checkbox reflects that initially
+            rememberMeChecked = false
+        }
+    }
+
+    // --- Back Handler ---
+    BackHandler {
+        showExitDialog = true
+    }
+    if (showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { showExitDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitDialog = false
+                        activity?.finishAffinity() // Closes the app task
+                    }
+                ) {
+                    Text(
+                        text = "Confirm",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showExitDialog = false }
+                ) {
+                    Text(
+                        text = "Cancel",
+                        color = Color.Black // Consider using MaterialTheme colors
+                    )
+                }
+            },
+            title = { Text(text = "Exit App") },
+            text = { Text(text = "Are you sure you want to exit?") },
+        )
+    }
 
     GoFundTheme {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.LightGray)
         ) {
             // Main Content
             Surface(
@@ -332,69 +414,113 @@ fun LoginScreen(navController: NavController, LoginViewModel: LoginViewModel = v
                 color = Color(LightModeLightBlue.value)
             ) {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp), // Consistent padding
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     LogoText()
-                    EmailNameTextField(username = email, onUsernameValueChange = { email = it })
-                    PasswordTextField(
-                        password = password,
-                        modifier = Modifier.padding(top = 10.dp, bottom = 5.dp),
-                        onPasswordValueChange = { password = it }
+
+                    EmailNameTextField(
+                        username = emailInput, // Bind to local UI state
+                        onUsernameValueChange = { emailInput = it }
                     )
-                    ForgotPassword(modifier = Modifier.padding(bottom = 20.dp))
+                    PasswordTextField(
+                        password = passwordInput, // Reduced padding
+                        onPasswordValueChange = {
+                            if (passwordInput.length <= 9 || passwordInput.length < passwordInput.length){
+                                passwordInput = it
+                            }
+                        }
+                    )
+                    RowAreaForRememberMeAndForgotPass(
+                        modifier = Modifier.padding(top = 4.dp, bottom = 16.dp), // Adjust spacing
+                        checkedState = rememberMeChecked, // Bind checkbox to local UI state
+                        onCheckChange = { isChecked ->
+                            // This lambda is called when the Checkbox state *should* change
+                            rememberMeChecked = isChecked
+                            Log.d("LoginScreen", "Checkbox toggled: $isChecked")
+                        },
+                        onForgotPassClick = {
+                            // TODO: Implement forgot password navigation/logic
+                            Toast.makeText(context, "Forgot Password Clicked", Toast.LENGTH_SHORT).show()
+                        }
+                    )
 
-                    LoginButton(navController) {
-                        if (email.isEmpty() || password.isEmpty()){
-                            Toast.makeText(context, "Make sure to fill username and password", Toast.LENGTH_SHORT).show()
-                            return@LoginButton
-                        }else{
-                            isLoading = true
-
-                            LoginViewModel.login(email.trim(), password.trim(),
-                                onSuccess = {
-                                    isLoading = false
-                                    Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
-                                    navController.navigate(Screen.ContentScreen.route){
-                                        popUpTo(Screen.LoginScreen.route){
-                                            inclusive = true
-                                        }
-                                    }
-                                },
-                                onFailure = { error ->
-                                    isLoading = false
-                                    errorMessage = error
-                                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                                }
+                    // Display error message if not null or empty
+                    errorMessage?.let {
+                        if (it.isNotEmpty()) {
+                            Text(
+                                text = it,
+                                color = MaterialTheme.colorScheme.error, // Use theme error color
+                                style = MaterialTheme.typography.bodySmall, // Use theme typography
+                                modifier = Modifier.padding(bottom = 8.dp),
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
 
-                    SpacerWhiteLine(modifier = Modifier.padding(vertical = 10.dp))
+                    LoginButton( // Removed NavController param as it's available in scope
+                        modifier = Modifier.padding(bottom = 10.dp),
+                        onClick = {
+                            if (emailInput.isBlank() || passwordInput.isBlank()) { // Use isBlank for better validation
+                                errorMessage = "Email and password cannot be empty."
+                                // Toast is optional if error is shown in Text
+                                // Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                                return@LoginButton
+                            } else {
+                                errorMessage = null // Clear previous error
+                                isLoading = true
+                                loginViewModel.login(
+                                    email = emailInput.trim(),
+                                    password = passwordInput.trim(),
+                                    rememberMe = rememberMeChecked, // Pass the current UI checkbox state
+                                    onSuccess = {
+                                        isLoading = false
+                                        Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
+                                        // Navigate after successful login
+                                        navController.navigate(Screen.ContentScreen.route) {
+                                            popUpTo(Screen.LoginScreen.route) {
+                                                inclusive = true
+                                            }
+                                            launchSingleTop = true // Prevent multiple instances of ContentScreen
+                                        }
+                                    },
+                                    onFailure = { error ->
+                                        isLoading = false
+                                        errorMessage = error // Set error message to display in Text
+                                    }
+                                )
+                            }
+                        }
+                    )
+
+                    SpacerWhiteLine(modifier = Modifier.padding(vertical = 0.dp)) // Reduced padding
 
                     SignUpButton(
-                        navController = navController,
+                        modifier = Modifier.padding(top = 10.dp),
                         onClick = { navController.navigate(Screen.RegisterScreen.route) }
                     )
+
+                    Spacer(modifier = Modifier.height(20.dp)) // Space at bottom if needed
                 }
             }
 
-            // ✅ Floating Circular Progress
+            // --- Loading Indicator ---
             if (isLoading) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.5f)) // Dim background
-                        .clickable(enabled = false) {}, // Prevent clicks when loading
+                        .background(Color.Black.copy(alpha = 0.5f))
+                        // Prevent clicks passing through the loading overlay
+                        .clickable(enabled = false) {},
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(
-                        color = Color.White,
+                        color = Color.White, // Or MaterialTheme.colorScheme.primary
                         strokeWidth = 4.dp,
-                        modifier = Modifier
-                            .size(50.dp)
-
+                        modifier = Modifier.size(50.dp)
                     )
                 }
             }
@@ -402,12 +528,21 @@ fun LoginScreen(navController: NavController, LoginViewModel: LoginViewModel = v
     }
 }
 
-
-
+// --- Previews (Optional, might need adjustments for ViewModel) ---
+/*
 @Preview(showBackground = true)
 @Composable
-fun PreviewCompose(){
+fun LoginScreenPreview() {
+    // Previews often need a dummy NavController and might have issues with ViewModels
+    // depending on how they are instantiated (e.g., Hilt).
     val navController = rememberNavController()
-    LoginScreen(navController)
-
+    // You might need a fake ViewModel or adjust the default viewModel() call for previews
+    LoginScreen(navController = navController)
 }
+
+@Preview
+@Composable
+fun WhiteSpacePreview(){ // Keep this if useful
+    SpacerWhiteLine()
+}
+*/

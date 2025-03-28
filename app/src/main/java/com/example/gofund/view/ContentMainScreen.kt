@@ -12,6 +12,7 @@ import androidx.compose.material3.AlertDialog // Keep this
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -97,12 +98,11 @@ fun ContentMainScreen(navController: NavHostController){
     if (showLogOutDialog) {
         AlertDialog(
             onDismissRequest = {
-                // Dismiss the dialog when clicking outside or pressing back button
                 showLogOutDialog = false
                 Log.d("LOGOUT_DIALOG", "Dialog dismissed via outside click/back press.")
             },
             title = {
-                Text(text = "Confirm Logout") // More descriptive title
+                Text(text = "Confirm Logout")
             },
             text = {
                 Text("Are you sure you want to log out?") // More descriptive text
@@ -125,7 +125,7 @@ fun ContentMainScreen(navController: NavHostController){
                         Log.d("CURRENT_USER_ID_AFTER", auth.currentUser?.uid.toString())
                     }
                 ) {
-                    Text("Logout")
+                    Text(text = "Logout", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
@@ -135,7 +135,7 @@ fun ContentMainScreen(navController: NavHostController){
                         Log.d("LOGOUT_DISMISS", "Logout dismissed via button click.")
                     }
                 ) {
-                    Text("Cancel")
+                    Text(text = "Cancel", color = Color.Black)
                 }
             }
         )

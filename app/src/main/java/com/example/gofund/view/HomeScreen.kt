@@ -109,7 +109,12 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) 
         Box(
             modifier = Modifier
                 .background(Color.White)
-                .wrapContentSize(),
+                .wrapContentSize()
+                .clickable(
+                    onClick = {
+                        // TODO: will implement the bottom sheet?? 
+                    }
+                ),
             contentAlignment = Alignment.Center
         ) {
             CustomComponent(
@@ -181,7 +186,7 @@ fun ContentButtons(navController: NavHostController, onAddFundClick: () -> Unit,
                 .padding(10.dp)
                 .weight(1f)
                 .height(300.dp)
-                .clickable{
+                .clickable {
                     onAddFundClick()
                 },
             colors = CardDefaults.cardColors(
@@ -226,7 +231,7 @@ fun ContentButtons(navController: NavHostController, onAddFundClick: () -> Unit,
                     .padding(bottom = 10.dp)
                     .fillMaxSize()
                     .weight(1f)
-                    .clickable{
+                    .clickable {
                         onEditFundClick()
                     },
                 colors = CardDefaults.cardColors(
@@ -264,7 +269,7 @@ fun ContentButtons(navController: NavHostController, onAddFundClick: () -> Unit,
                     .padding(top = 10.dp)
                     .fillMaxSize()
                     .weight(1f)
-                    .clickable{
+                    .clickable {
                         onAccountClick()
                     },
                 colors = CardDefaults.cardColors(
