@@ -61,6 +61,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.R
 import com.example.gofund.navigations.Screen
+import com.example.gofund.notification.NotificationService
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.PoppinsFamily
 import com.example.gofund.viewmodel.BSheetViewModel
@@ -86,6 +87,7 @@ fun HomeScreen(
 
     val limitReached by homeViewModel.isFundLimitReached.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val notificationService = remember { NotificationService(context) }
 
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
@@ -100,6 +102,7 @@ fun HomeScreen(
                 "FUND LIMIT REACHED!", // Message for the one-time notification
                 Toast.LENGTH_LONG // Make it last longer
             ).show()
+            notificationService.showNotification()
             // If implementing system notifications, trigger that here instead of/as well as Toast
         }
     }

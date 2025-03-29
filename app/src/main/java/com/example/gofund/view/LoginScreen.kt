@@ -427,11 +427,16 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                         onUsernameValueChange = { emailInput = it }
                     )
                     PasswordTextField(
-                        password = passwordInput, // Reduced padding
-                        onPasswordValueChange = {
-                            if (passwordInput.length <= 9 || passwordInput.length < passwordInput.length){
-                                passwordInput = it
+                        password = passwordInput,
+                        modifier = Modifier.padding(top = 10.dp), // Your modifier
+                        onPasswordValueChange = { newValue -> // 'newValue' is the proposed update
+                            // Check the length of the NEW value
+                            if (newValue.length <= 9) {
+                                // Only update the state if the new value is within the limit
+                                passwordInput = newValue
                             }
+                            // If newValue.length > 9, do nothing - the state won't update,
+                            // preventing the extra character from appearing.
                         }
                     )
                     RowAreaForRememberMeAndForgotPass(
@@ -443,8 +448,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                             Log.d("LoginScreen", "Checkbox toggled: $isChecked")
                         },
                         onForgotPassClick = {
-                            // TODO: Implement forgot password navigation/logic
-                            Toast.makeText(context, "Forgot Password Clicked", Toast.LENGTH_SHORT).show()
+                            navController.navigate(Screen.ForgotPasswordScreen.route)
                         }
                     )
 

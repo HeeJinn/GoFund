@@ -13,6 +13,7 @@ import com.example.gofund.view.AddFundScreen
 import com.example.gofund.view.ContentMainScreen
 import com.example.gofund.view.EditFundScreen
 import com.example.gofund.view.ExpenseDetailScreen
+import com.example.gofund.view.ForgotPasswordScreen
 import com.example.gofund.view.HomeScreen
 import com.example.gofund.view.LoginScreen
 import com.example.gofund.view.RegisterScreen
@@ -32,6 +33,9 @@ fun SetupNavGraph(navController: NavHostController){ //Main Nav Graph
         composable(route = Screen.RegisterScreen.route){
             RegisterScreen(navController = navController)
 
+        }
+        composable(route = Screen.ForgotPasswordScreen.route) {
+            ForgotPasswordScreen(navController)
         }
         composable(route = Screen.ContentScreen.route){
             ContentMainScreen(navController)

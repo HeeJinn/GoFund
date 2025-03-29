@@ -7,7 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.gofund.navigations.SetupNavGraph
 import com.example.gofund.ui.theme.GoFundTheme
-import com.example.gofund.view.ContentMainScreen
+
 
 class MainActivity : ComponentActivity() {
     lateinit var navController: NavHostController
@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             GoFundTheme {
                 navController = rememberNavController()
-//                ContentMainScreen(navController)
+
                 SetupNavGraph(navController)
 
             }

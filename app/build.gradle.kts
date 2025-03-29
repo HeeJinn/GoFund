@@ -1,9 +1,14 @@
+// app/build.gradle.kts
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
+
 }
+
+
 
 android {
     namespace = "com.example.gofund"
@@ -38,10 +43,11 @@ android {
     buildFeatures {
         compose = true
     }
+
 }
 
 dependencies {
-    implementation(libs.navigation.compose) // Use the latest version
+    implementation(libs.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -55,12 +61,11 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.firebase.database)
-
     implementation(libs.androidx.lifecycle.runtime.compose)
-
     implementation(libs.kotlinx.coroutines.play.services)
-
     implementation(libs.androidx.datastore.preferences)
+
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

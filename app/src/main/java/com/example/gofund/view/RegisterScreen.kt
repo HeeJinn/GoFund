@@ -71,6 +71,7 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
     var password by remember { mutableStateOf("") }
     var errorMsg by remember{ mutableStateOf("")}
     var isLoading by remember { mutableStateOf(false) }
+    var isAlreadyMemberEnabled by remember { mutableStateOf(true) }
 
 
     GoFundTheme {
@@ -100,7 +101,9 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
                         color = Color.White
                     )
                     BackToLogin(
+                        isEnabled = isAlreadyMemberEnabled,
                         onLoginClick = {
+                            isAlreadyMemberEnabled = false
                             navController.popBackStack()
                         }
                     )
@@ -187,7 +190,7 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
 }
 
 @Composable
-fun BackToLogin(modifier : Modifier = Modifier, onLoginClick: () -> Unit) {
+fun BackToLogin(isEnabled: Boolean,modifier : Modifier = Modifier, onLoginClick: () -> Unit) {
     val annotatedText = buildAnnotatedString {
         pushStyle(
             SpanStyle(
@@ -212,7 +215,11 @@ fun BackToLogin(modifier : Modifier = Modifier, onLoginClick: () -> Unit) {
 
     Text(
         text = annotatedText,
-        modifier = Modifier.clickable { onLoginClick() }
+        modifier = Modifier
+            .clickable(enabled = isEnabled) {
+
+                onLoginClick()
+            }
     )
 }
 
