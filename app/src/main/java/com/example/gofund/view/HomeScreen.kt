@@ -20,15 +20,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -77,7 +75,8 @@ fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = viewModel(),
-    bSheetViewModel: BSheetViewModel = viewModel()
+    bSheetViewModel: BSheetViewModel = viewModel(),
+
 ) {
 
 
@@ -85,8 +84,34 @@ fun HomeScreen(
     val userDataResult by homeViewModel.userDataState.collectAsStateWithLifecycle()
     val showBottomSheet by bSheetViewModel.openBottomSheet.collectAsStateWithLifecycle()
 
+    val limitReached by homeViewModel.isFundLimitReached.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+
+    // --- ADDED: LaunchedEffect to handle one-time notification event ---
+    LaunchedEffect(Unit) { // key = Unit ensures it runs once and stays collecting
+        homeViewModel.limitReachedEvent.collect {
+            // This code runs ONLY when the ViewModel emits the event
+            Log.d("HomeScreen", "Received Fund Limit Reached Event!")
+            Toast.makeText(
+                context,
+                "FUND LIMIT REACHED!", // Message for the one-time notification
+                Toast.LENGTH_LONG // Make it last longer
+            ).show()
+            // If implementing system notifications, trigger that here instead of/as well as Toast
+        }
+    }
+
+
+    LaunchedEffect(Unit) {
+        homeViewModel.limitSettingFeedbackEvent.collect { message ->
+            // Show Toast based on messages from updateFundLimit
+            Log.d("HomeScreen", "Received Limit Setting Feedback: $message")
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
 
     Column(
         // Use the modifier parameter passed into the function
@@ -181,6 +206,7 @@ fun HomeScreen(
 
     } // End Main Column
 
+    Log.d("HOME_SCREEN", "isLimit reached: $limitReached")
     if (showBottomSheet) {
         val context = LocalContext.current
         var showCustomResetDialog by remember { mutableStateOf(false) }
@@ -214,8 +240,8 @@ fun HomeScreen(
                             }
                     },
                     onSetFundClick = {selectedLimit ->
-                        bSheetViewModel.updateFundLimit(selectedLimit)
-                        Toast.makeText(context, "Fund Limit has set to ₱$selectedLimit", Toast.LENGTH_SHORT).show()
+                        homeViewModel.updateFundLimit(selectedLimit)
+
 
                         scope
                             .launch {bottomSheetState.hide() }
@@ -233,11 +259,18 @@ fun HomeScreen(
 
         }
         if (showCustomResetDialog) {
-            CustomResetDialog(
+            CustomDialog(
+                headerTitle = "Reset Fund",
+                contentText = "Are you sure you want to reset your fund",
+                contentTextColor = Color.Black,
+                iconContent = painterResource(id = R.drawable.warning_vector),
+                onDismissText = "No",
+                onConfirmText = "Yes",
+                iconTint = MaterialTheme.colorScheme.error,
                 onDismiss = {
                     showCustomResetDialog = false },
                 onConfirm = {
-                    bSheetViewModel.resetFund()
+                    homeViewModel.resetFund()
                     showCustomResetDialog = false
                 }
             )
@@ -246,7 +279,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun CustomResetDialog(onDismiss: () -> Unit, onConfirm: () -> Unit){
+fun CustomDialog(headerTitle: String, contentText : String, iconContent: Painter, iconTint: Color, contentTextColor: Color, onDismissContainerColor : Color = Color.LightGray, onConfirmContainerColor: Color = MaterialTheme.colorScheme.primary, onDismissText: String, onConfirmText: String, onDismiss: () -> Unit, onConfirm: () -> Unit){
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = true)
@@ -275,7 +308,7 @@ fun CustomResetDialog(onDismiss: () -> Unit, onConfirm: () -> Unit){
                     Text(
                         modifier = Modifier
                             .padding(30.dp),
-                        text = "Reset Fund",
+                        text = headerTitle,
                         fontFamily = IntroFamily,
                         fontSize = 30.sp,
                         color = Color.White
@@ -290,14 +323,14 @@ fun CustomResetDialog(onDismiss: () -> Unit, onConfirm: () -> Unit){
                     Text(
                         modifier = Modifier
                             .padding(20.dp),
-                        text = "Are you sure you want to reset your fund",
+                        text = contentText,
                         fontFamily = PoppinsFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
-                        color = Color.Black
+                        color = contentTextColor
                     )
                     Icon(
-                        painter = painterResource(id = R.drawable.warning_vector), contentDescription = "Error ICon", modifier = Modifier.size(100.dp), tint = MaterialTheme.colorScheme.error
+                        painter = iconContent, contentDescription = "Error ICon", modifier = Modifier.size(100.dp), tint = iconTint
                     )
                     Row(
                         modifier = Modifier
@@ -311,11 +344,11 @@ fun CustomResetDialog(onDismiss: () -> Unit, onConfirm: () -> Unit){
                             onClick = onDismiss,
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.LightGray
+                                containerColor = onDismissContainerColor
                             )
                         )  {
                             Text(
-                                text = "No",
+                                text = onDismissText,
                                 fontFamily = PoppinsFamily,
                                 fontSize = 20.sp,
                                 color = Color.Black
@@ -329,10 +362,13 @@ fun CustomResetDialog(onDismiss: () -> Unit, onConfirm: () -> Unit){
                             modifier = Modifier
                                 .weight(1f),
                             onClick = onConfirm,
-                            shape = RoundedCornerShape(10.dp)
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = onConfirmContainerColor
+                            )
                         ) {
                             Text(
-                                text = "Yes",
+                                text = onConfirmText,
                                 fontFamily = PoppinsFamily,
                                 fontSize = 20.sp,
                                 color = Color.White
@@ -460,10 +496,125 @@ fun BottomSheetItem(totalAmount: Int, onCancelClick:() -> Unit, onSetFundClick:(
     Log.d("SLIDER", "${sliderValue.toInt()}")
 }
 
+@Composable
+fun CustomFundLimitDialog(fundLimitAmount: String, headerTitle: String, contentText : String, contentTextColor: Color, onDismissContainerColor : Color = Color.LightGray, onConfirmContainerColor: Color = MaterialTheme.colorScheme.primary, onDismissText: String, onConfirmText: String, onDismiss: () -> Unit, onConfirm: () -> Unit){
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = true)
+    ) {
+        Card(
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            shape = RoundedCornerShape(15.dp),
+            modifier = Modifier
+                .width(700.dp)
+                .wrapContentHeight(),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(30.dp),
+                        text = headerTitle,
+                        fontFamily = IntroFamily,
+                        fontSize = 30.sp,
+                        color = Color.White
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .padding(bottom = 40.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(20.dp),
+                        text = contentText,
+                        fontFamily = IntroFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = contentTextColor
+                    )
+                    Text(
+                        text= fundLimitAmount,
+                        fontSize = 40.sp,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        fontFamily = IntroFamily
+                    )
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 15.dp, top = 25.dp, end = 15.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Button(
+                            modifier = Modifier
+                                .weight(1f),
+                            onClick = onDismiss,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = onDismissContainerColor
+                            )
+                        )  {
+                            Text(
+                                text = onDismissText,
+                                fontFamily = PoppinsFamily,
+                                fontSize = 20.sp,
+                                color = Color.Black
+                            )
+                        }
+                        Spacer(
+                            modifier = Modifier
+                                .width(10.dp)
+                        )
+                        Button(
+                            modifier = Modifier
+                                .weight(1f),
+                            onClick = onConfirm,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = onConfirmContainerColor
+                            )
+                        ) {
+                            Text(
+                                text = onConfirmText,
+                                fontFamily = PoppinsFamily,
+                                fontSize = 20.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewBottomSheetItem(){
-    CustomResetDialog(
+    CustomFundLimitDialog(
+        headerTitle = "Fund limit",
+        fundLimitAmount = "1000",
+        contentText = "Amount",
+        onDismissText = "Back",
+        onConfirmText = "Remove",
+        contentTextColor = Color.Black,
+        onConfirmContainerColor = MaterialTheme.colorScheme.error,
         onDismiss = {},
         onConfirm = {}
     )

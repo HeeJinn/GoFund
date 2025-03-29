@@ -122,8 +122,8 @@ fun CreateExpenseScreen(
                 note = ""
             },
             onAddButtonClick = {
-                if (title.isBlank() || amount.isBlank()) {
-                    Toast.makeText(context, "Please fill title and amount", Toast.LENGTH_SHORT).show()
+                if (title.isBlank() || amount.isBlank() || note.isBlank()) {
+                    Toast.makeText(context, "Please fill title, amount and note", Toast.LENGTH_SHORT).show()
                     return@ExpenseCard
                 }
 

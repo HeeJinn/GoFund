@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExitToApp
 import androidx.compose.material3.AlertDialog // Keep this
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,20 +24,27 @@ import androidx.compose.material3.TextButton // Keep this
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview // Add if needed for previewing this screen specifically
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.gofund.R
 import com.example.gofund.navigations.BottomBarScreen
 import com.example.gofund.navigations.BottomNavGraph
 import com.example.gofund.navigations.Screen
@@ -44,14 +52,17 @@ import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.LightModeLightBlue
 import com.example.gofund.ui.theme.LightModeWhite
 import com.example.gofund.ui.theme.LightModeYellow
+import com.example.gofund.viewmodel.ContentMainViewmodel
 import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContentMainScreen(navController: NavHostController){
+fun ContentMainScreen(navController: NavHostController, contentMainViewModel : ContentMainViewmodel = viewModel()){
     val bottomNavController = rememberNavController()
     val auth: FirebaseAuth = FirebaseAuth.getInstance()
     var showLogOutDialog by remember { mutableStateOf(false) }
+    var showFundLimitDialog by remember { mutableStateOf(false) }
+    val fundLimitValue by contentMainViewModel.fundLimit.collectAsStateWithLifecycle()
 
     BackHandler(enabled = true) {
         showLogOutDialog = true
@@ -68,6 +79,16 @@ fun ContentMainScreen(navController: NavHostController){
                     actionIconContentColor = Color.White
                 ),
                 actions = {
+                    IconButton(
+                        onClick = {
+                            showFundLimitDialog = true
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.fund_limit_vector),
+                            contentDescription = "fund_limit_vector",
+                            modifier = Modifier.size(30.dp))
+                    }
                     IconButton(
                         onClick = {
                             Log.d("LOGOUT_CLICK", "Logout icon clicked, showing dialog.")
@@ -137,6 +158,25 @@ fun ContentMainScreen(navController: NavHostController){
                 ) {
                     Text(text = "Cancel", color = Color.Black)
                 }
+            }
+        )
+    }
+    if (showFundLimitDialog){
+
+        CustomFundLimitDialog(
+            headerTitle = "Fund limit",
+            contentText = "Amount",
+            fundLimitAmount = "₱${fundLimitValue ?: "Not Set"}",
+            onDismissText = "Back",
+            onConfirmText = "Remove",
+            contentTextColor = Color.Black,
+            onConfirmContainerColor = MaterialTheme.colorScheme.error,
+            onDismiss = {
+                showFundLimitDialog = false
+            },
+            onConfirm = {
+                contentMainViewModel.resetFund()
+                showFundLimitDialog = false
             }
         )
     }
