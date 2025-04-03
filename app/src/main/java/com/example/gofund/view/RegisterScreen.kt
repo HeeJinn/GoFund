@@ -47,6 +47,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -128,19 +129,33 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
                             .padding(top = 10.dp),
                         registerPass = password,
                         onPasswordValueChange = { newPassword ->
-                            if (newPassword.length <= 9 || newPassword.length < password.length) {
                                 password = newPassword
                             }
-                        }
+
                     )
+                    if (errorMsg.isNotBlank()) {
+                        Text(
+                            text = errorMsg,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
                     SignupButton(
                         modifier = Modifier
                             .padding(top = 30.dp)
                         ,navController = navController
                     ) {
                         if (email.isEmpty() || username.isEmpty() || password.isEmpty()){
-                            Toast.makeText(context, "Make sure to fill all the text field", Toast.LENGTH_SHORT).show()
-                        }else{
+                            errorMsg = "Make sure to fill all the text field"
+                        }
+                        else if (password.length < 9){
+                            errorMsg = "Password must be at least 9 characters"
+                            return@SignupButton
+
+                        } else{
+                            errorMsg = ""
                             isLoading = true
                             loginViewModel.signUp(email.trim(), username.trim(), password.trim(),
                                 onSuccess = {
@@ -239,6 +254,7 @@ fun EmailRegister(modifier: Modifier= Modifier, email: String, onTextChange: (St
         value = email,
         onValueChange = onTextChange,
         maxLines = 1,
+        singleLine = true,
         shape = MaterialTheme.shapes.medium,
         textStyle = TextStyle(
             fontFamily = PoppinsFamily,
@@ -298,6 +314,7 @@ fun UsernameRegister(modifier: Modifier, username: String, onValueChange: (Strin
             color = Color.Black,
             fontSize = 16.sp
         ),
+        singleLine = true,
         maxLines = 1,
         placeholder = {Text(text = "Enter username", color = Color.LightGray)},
         shape = MaterialTheme.shapes.medium,
@@ -350,9 +367,10 @@ fun PasswordRegister(
                 isFocused = focusState.isFocused
             },
         value = registerPass,
+        singleLine = true,
         supportingText = {
             Text(
-                text = "Must be 9 characters or less",
+                text = "Must be 9 characters or more",
                 color = Color.White
             )
         },
@@ -364,9 +382,8 @@ fun PasswordRegister(
         maxLines = 1,
         shape = MaterialTheme.shapes.medium,
         onValueChange = { newPassword ->
-            if (newPassword.length <= 9 || newPassword.length < registerPass.length) {
-                onPasswordValueChange(newPassword)
-            }
+           onPasswordValueChange(newPassword)
+
         },
         label = {
             Text(

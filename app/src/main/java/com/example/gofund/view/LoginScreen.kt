@@ -430,13 +430,8 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                         password = passwordInput,
                         modifier = Modifier.padding(top = 10.dp), // Your modifier
                         onPasswordValueChange = { newValue -> // 'newValue' is the proposed update
-                            // Check the length of the NEW value
-                            if (newValue.length <= 9) {
-                                // Only update the state if the new value is within the limit
                                 passwordInput = newValue
-                            }
-                            // If newValue.length > 9, do nothing - the state won't update,
-                            // preventing the extra character from appearing.
+
                         }
                     )
                     RowAreaForRememberMeAndForgotPass(
@@ -472,6 +467,9 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                                 errorMessage = "Email and password cannot be empty."
                                 // Toast is optional if error is shown in Text
                                 // Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                                return@LoginButton
+                            }else if(passwordInput.length < 9){
+                                errorMessage = "Password must be at least 9 characters long."
                                 return@LoginButton
                             } else {
                                 errorMessage = null // Clear previous error
