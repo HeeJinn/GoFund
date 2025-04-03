@@ -256,7 +256,10 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
         if (isTermsAndPrivacyOpen){
             TermsAndPrivacyDialogContent(
                 onDismissClick = { isTermsAndPrivacyOpen = false },
-                onAgreeClick = { isAgreedToTermsAndPrivacyOpen = true }
+                onAgreeClick = {
+                    isAgreedToTermsAndPrivacyOpen = true
+                    isTermsAndPrivacyOpen = false
+                }
             )
         }
         if (isTermsAndPrivacyOpenNoButton){
