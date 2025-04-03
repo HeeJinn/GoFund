@@ -90,6 +90,7 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
     var isLoading by remember { mutableStateOf(false) }
     var isAlreadyMemberEnabled by remember { mutableStateOf(true) }
     var isTermsAndPrivacyOpen by remember { mutableStateOf(false) }
+    var isTermsAndPrivacyOpenNoButton by remember { mutableStateOf(false) }
     var isAgreedToTermsAndPrivacyOpen by remember { mutableStateOf(false) }
 
 
@@ -213,7 +214,7 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
                             modifier = Modifier.padding(0.dp),
                             contentPadding = PaddingValues(0.dp),
                             onClick = {
-                                isTermsAndPrivacyOpen = true
+                                isTermsAndPrivacyOpenNoButton = true
                             },
 
                         ) {
@@ -253,6 +254,11 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
             TermsAndPrivacyDialogContent(
                 onDismissClick = { isTermsAndPrivacyOpen = false },
                 onAgreeClick = { isAgreedToTermsAndPrivacyOpen = true }
+            )
+        }
+        if (isTermsAndPrivacyOpenNoButton){
+            TermsAndPrivacyDialogContentNoButton(
+                onDismissClick = { isTermsAndPrivacyOpenNoButton = false }
             )
         }
     }
@@ -515,9 +521,8 @@ fun SignupButton(modifier: Modifier = Modifier,navController: NavController, onC
     }
 }
 @Composable
-fun TermsAndPrivacyDialogContent( // Renamed for clarity
-    onDismissClick: () -> Unit,
-    onAgreeClick: () -> Unit
+fun TermsAndPrivacyDialogContentNoButton( // Renamed for clarity
+    onDismissClick: () -> Unit
 ) {
     val scrollState: ScrollState = rememberScrollState()
     // Consider using AlertDialog for standard dialog behavior
@@ -530,7 +535,7 @@ fun TermsAndPrivacyDialogContent( // Renamed for clarity
                 .fillMaxWidth()
                 .height(600.dp) // Adjust height as needed
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize().background(Color.White),) {
                 // --- Header ---
                 Surface(
                     modifier = Modifier
@@ -554,6 +559,278 @@ fun TermsAndPrivacyDialogContent( // Renamed for clarity
                     modifier = Modifier
                         .weight(1f)
                         .verticalScroll(scrollState)
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    // --- Terms and Conditions Section ---
+                    Text(
+                        text = "Terms and Conditions",
+                        fontWeight = FontWeight.ExtraBold, // Make T&C stand out
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        // Use actual last updated date for T&C
+                        text = "Last Updated: 04/03/2025\n",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = "Welcome to Go Fund App!",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    SectionText("These Terms and Conditions (\"Terms\") govern your use of our mobile application (\"App\") and services. By accessing or using the App, you agree to comply with these Terms. If you do not agree, please refrain from using the App.")
+
+                    SectionTitle("Acceptance of Terms")
+                    SectionText("By creating an account or using Go Fund App, you acknowledge that you have read, understood, and agreed to these Terms, as well as our Privacy Policy. These Terms constitute a legally binding agreement between you and Go Fund App.")
+
+                    SectionTitle("Account Registration")
+                    SectionText(
+                        "• To use the App, you must register using a valid email address.\n" +
+                                "• You are responsible for maintaining the confidentiality of your account credentials.\n" +
+                                "• You must provide accurate and up-to-date information.\n" +
+                                "• Go Fund App reserves the right to suspend or terminate accounts that violate these Terms."
+                    )
+
+                    SectionTitle("Use of the App")
+                    SectionText(
+                        "• The App allows users to track dummy input funds, simulate expenses, and simulate investments.\n" +
+                                "• All financial data entered is for simulation purposes only and does not represent real financial transactions.\n" +
+                                "• The App does not provide real financial, investment, or tax advice."
+                    )
+
+                    SectionTitle("User Responsibilities")
+                    SectionText(
+                        "• You agree not to use the App for illegal or fraudulent activities.\n" +
+                                "• You must not attempt to hack, reverse-engineer, or disrupt the App’s functionality.\n" +
+                                "• You are solely responsible for any data you input into the App."
+                    )
+
+                    SectionTitle("Intellectual Property")
+                    SectionText(
+                        "• Go Fund App owns all rights, titles, and interests in the App, including its software and content.\n" +
+                                "• No copyrighted material is used in this App.\n" +
+                                "• You may not reproduce, modify, or distribute the App without explicit permission."
+                    )
+
+                    SectionTitle("Data Privacy")
+                    SectionText(
+                        "• Your personal data will be handled in accordance with the Philippine Data Privacy Act of 2012 (Republic Act No. 10173).\n" +
+                                "• We collect your email for account creation and may use analytics to improve the App.\n" +
+                                "• For more details, please review our Privacy Policy." // Reference to the policy below
+                    )
+
+                    SectionTitle("Limitation of Liability")
+                    SectionText(
+                        "• The App is provided \"as is\" without warranties of any kind.\n" +
+                                "• Go Fund App shall not be liable for any damages arising from the use or inability to use the App.\n" +
+                                "• The App does not guarantee accuracy in financial simulations."
+                    )
+
+                    SectionTitle("Governing Law")
+                    SectionText("These Terms shall be governed by and construed in accordance with the laws of the Republic of the Philippines. Any disputes shall be resolved in the courts of the Philippines.")
+
+                    SectionTitle("Changes to Terms")
+                    SectionText("Go Fund App reserves the right to modify these Terms at any time. Continued use of the App after changes constitutes acceptance of the updated Terms.")
+
+                    SectionTitle("Termination")
+                    SectionText("Go Fund App may terminate or suspend your access to the App at any time for violations of these Terms.")
+
+                    SectionTitle("Contact Information (Terms)") // Clarify which contact info
+                    SectionText(
+                        "For questions or concerns regarding these Terms, please contact us at:\n" +
+                                "Email: knribnitez@gmail.com" // Use actual email
+                    )
+
+                    // --- Separator ---
+                    Divider(modifier = Modifier.padding(vertical = 20.dp), thickness = 1.dp, color = Color.LightGray)
+
+                    // --- Privacy Policy Section ---
+                    Text(
+                        text = "Privacy Policy",
+                        fontWeight = FontWeight.ExtraBold, // Make Privacy Policy stand out
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    val currentDateTime = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(Date())
+                    Text(
+                        // Replace placeholder [Insert Date] with current date or specific last updated date
+                        text = "Last Updated: $currentDateTime\n", // Using current date as placeholder was not provided
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = "Welcome to Go Fund App!",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    SectionText("This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application (\"App\"). By accessing or using the App, you agree to the terms of this Privacy Policy. If you do not agree, please do not use the App.")
+
+                    SectionTitle("Information We Collect")
+                    SectionText(
+                        "Personal Information\n" +
+                                "When you register, we collect:\n" +
+                                " • Email Address (for account creation and communication)\n" +
+                                " • Username (optional, if applicable)\n\n" +
+                                "Non-Personal Information\n" +
+                                "We may automatically collect:\n" +
+                                " • Device Information (e.g., device model, operating system)\n" +
+                                " • Usage Data (e.g., features accessed, session duration)\n" +
+                                " • IP Address & Location Data (general, non-precise location for analytics)\n\n" +
+                                "Financial Simulation Data\n" +
+                                " • The App allows you to input dummy funds, expenses, and investments for simulation purposes.\n" +
+                                " • This data is stored locally on your device unless you opt for cloud backup (if applicable).\n" +
+                                " • No real financial transactions occur within the App."
+                    )
+
+                    SectionTitle("How We Use Your Information")
+                    SectionText(
+                        "We use collected data to:\n" +
+                                " • Provide and improve the App’s functionality.\n" +
+                                " • Personalize your experience.\n" +
+                                " • Respond to user inquiries and support requests.\n" +
+                                " • Analyze trends and usage for App optimization.\n" +
+                                " • Comply with legal obligations under Philippine law."
+                    )
+
+                    SectionTitle("Data Sharing & Disclosure")
+                    SectionText(
+                        "We do not sell or rent your personal information. However, we may share data in the following cases:\n" +
+                                " • Service Providers: Third-party vendors assisting in App operations (e.g., cloud storage, analytics).\n" +
+                                " • Legal Compliance: If required by law (e.g., court orders, government requests).\n" +
+                                " • Business Transfers: In case of mergers, acquisitions, or asset sales."
+                    )
+
+                    SectionTitle("Data Security")
+                    SectionText(
+                        " • We implement industry-standard security measures to protect your data.\n" +
+                                " • However, no digital transmission is 100% secure—use the App at your own risk."
+                    )
+
+                    SectionTitle("Data Retention")
+                    SectionText(
+                        " • Your account data is retained as long as your account is active.\n" +
+                                " • You may request account deletion by contacting us.\n" +
+                                " • Financial simulation data may be stored locally on your device unless deleted by you."
+                    )
+
+                    SectionTitle("Your Rights Under Philippine Law")
+                    SectionText(
+                        "Under the Data Privacy Act of 2012 (Republic Act No. 10173), you have the right to:\n" +
+                                " • Access, correct, or delete your personal data.\n" +
+                                " • Withdraw consent for data processing.\n" +
+                                " • File a complaint with the National Privacy Commission (NPC) if needed."
+                    )
+
+                    SectionTitle("Children’s Privacy")
+                    SectionText(
+                        " • The App is not intended for users under 13.\n" +
+                                " • We do not knowingly collect data from minors."
+                    )
+
+                    SectionTitle("Third-Party Links")
+                    SectionText(
+                        " • The App may contain links to third-party websites/services.\n" +
+                                " • We are not responsible for their privacy practices."
+                    )
+
+                    SectionTitle("Changes to This Policy")
+                    SectionText("We may update this Privacy Policy periodically. Continued use of the App after changes implies acceptance.")
+
+                    SectionTitle("Contact Us (Privacy)") // Clarify which contact info
+                    SectionText(
+                        "For questions, data requests, or concerns regarding this Privacy Policy, contact us at:\n" +
+                                "Email: knribnitez@gmail.com" // Use actual email, same as T&C for consistency?
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // --- Final Acknowledgment ---
+                    Text(
+                        text = "By clicking \"Agree\", you acknowledge that you have read, understood, and agreed to both the Terms and Conditions and the Privacy Policy.", // Updated acknowledgement
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+
+                // --- Buttons Row ---
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        onClick = onDismissClick, // Use passed lambda
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = LightModeLightBlue
+                        )
+                    ) {
+                        Text(
+                            text = "Close",
+                            color = LightModeWhite,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
+fun TermsAndPrivacyDialogContent( // Renamed for clarity
+    onDismissClick: () -> Unit,
+    onAgreeClick: () -> Unit
+) {
+    val scrollState: ScrollState = rememberScrollState()
+    // Consider using AlertDialog for standard dialog behavior
+    Dialog(
+        onDismissRequest = onDismissClick,
+        properties = DialogProperties(usePlatformDefaultWidth = true)
+    ){
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(600.dp) // Adjust height as needed
+        ) {
+            Column(modifier = Modifier.fillMaxSize().background(Color.White),) {
+                // --- Header ---
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    color = LightModeLightBlue
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(18.dp),
+                        text = "Terms & Privacy Policy", // Updated Title
+                        textAlign = TextAlign.Center,
+                        // fontFamily = IntroFamily,
+                        fontSize = 25.sp,
+                        color = LightModeWhite
+                    )
+                }
+
+                // --- Scrollable Content ---
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(scrollState)
+                        .background(Color.White)
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.Start
@@ -800,6 +1077,7 @@ fun TermsAndPrivacyDialogContent( // Renamed for clarity
 
     }
 }
+
 
 // Helper composables for consistent styling
 @Composable
