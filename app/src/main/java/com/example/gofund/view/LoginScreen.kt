@@ -70,7 +70,7 @@ import com.example.gofund.ui.theme.PoppinsFamily
 import com.example.gofund.ui.theme.SeaweedScriptFamily
 
 @Composable
-fun LogoText(){ // Copied from your previous input
+fun LogoText(){
     Box(
         modifier = Modifier
             .width(300.dp)

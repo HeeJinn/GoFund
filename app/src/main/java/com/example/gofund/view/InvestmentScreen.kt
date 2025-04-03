@@ -1,6 +1,7 @@
 package com.example.gofund.view
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,11 +25,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.gofund.R
 import com.example.gofund.model.ExpenseTypeItem
 import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.IntroFamily
@@ -44,6 +47,8 @@ fun InvestmentScreen(
     navController: NavController,
     viewModel: InvestmentViewModel = viewModel()
 ){
+    var investments = viewModel.investments
+    var isLoading = viewModel.isLoading
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,58 +56,81 @@ fun InvestmentScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var investments = viewModel.investments
-        var isLoading = viewModel.isLoading
-         ImageAndTotal(numberOfExpenses = investments.size, typeOfExpense = "Investment")
-        ViewAllButton(
-            typeOfExpense = "Investment",
-            onViewAllClick = {
-                Log.d("CONTENT_BUTTON", "View All Clicked")
-                navController.navigate(Screen.WholeInvestmentScreen.route)
+        if (isLoading){
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                // Timeout check
+                LaunchedEffect(Unit) {
+                    delay(10000) // 10 seconds timeout
+                    if (isLoading) {
+                        Log.w("InvestmentsScreen", "Loading timeout reached")
+                    }
+                }
             }
-        )
-        Card(
-            modifier = Modifier
-                .padding(horizontal = 20.dp, vertical = 10.dp)
-                .fillMaxWidth()
-                .height(400.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary
+        }else{
+            ImageAndTotal(numberOfExpenses = investments.size, typeOfExpense = "Investment")
+            ViewAllButton(
+                typeOfExpense = "Investment",
+                onViewAllClick = {
+                    Log.d("CONTENT_BUTTON", "View All Clicked")
+                    navController.navigate(Screen.WholeInvestmentScreen.route)
+                }
             )
-        ) {
-            if (isLoading){
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.primary
+            if (investments.isEmpty()){
+                Card(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                        .fillMaxWidth()
+                        .height(400.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
                     )
 
-                    // Timeout check
-                    LaunchedEffect(Unit) {
-                        delay(10000) // 10 seconds timeout
-                        if (isLoading) {
-                            Log.w("InvestmentsScreen", "Loading timeout reached")
-                        }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 10.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.nodata_2),
+                            contentDescription = "image"
+                        )
                     }
                 }
             }else{
-                LazyColumn(
+                Card(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 10.dp),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    items(investments) { data ->
-                        ExpenseItemHolder(expenseItem = data, navController = navController)
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                        .fillMaxWidth()
+                        .height(400.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ){
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 10.dp),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        items(investments) { data ->
+                            ExpenseItemHolder(expenseItem = data, navController = navController)
+                        }
                     }
                 }
             }
-
         }
     }
 }

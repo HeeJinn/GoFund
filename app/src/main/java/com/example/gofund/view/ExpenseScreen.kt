@@ -98,32 +98,59 @@ fun ExpenseScreen(
                     navController.navigate(Screen.WholeExpenseScreen.route)
                 }
             )
-
-            Card(
-                modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 10.dp)
-                    .fillMaxWidth()
-                    .height(400.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                LazyColumn(
+            if (expenses.isEmpty()){
+                Card(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 10.dp),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                        .fillMaxWidth()
+                        .height(400.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    )
+
                 ) {
-                    if (expenses.isNotEmpty()) {
-                        items(expenses.take(5)) { data ->
-                            ExpenseItemHolder(
-                                expenseItem = data,
-                                navController = navController
-                            )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 10.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.nodata_2),
+                            contentDescription = "image"
+                        )
+                    }
+                }
+
+            }else{
+                Card(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                        .fillMaxWidth()
+                        .height(400.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 10.dp),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (expenses.isNotEmpty()) {
+                            items(expenses.take(5)) { data ->
+                                ExpenseItemHolder(
+                                    expenseItem = data,
+                                    navController = navController
+                                )
+                            }
                         }
                     }
                 }
+
             }
         }
     }
