@@ -755,14 +755,6 @@ fun TermsAndPrivacyDialogContentNoButton( // Renamed for clarity
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
-
-                    // --- Final Acknowledgment ---
-                    Text(
-                        text = "By clicking \"Agree\", you acknowledge that you have read, understood, and agreed to both the Terms and Conditions and the Privacy Policy.", // Updated acknowledgement
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
                 }
 
                 // --- Buttons Row ---
