@@ -41,6 +41,7 @@ import com.example.gofund.R
 import com.example.gofund.model.ExpenseTypeItem
 import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.IntroFamily
+import com.example.gofund.ui.theme.LightModeYellow
 import com.example.gofund.ui.theme.PoppinsFamily
 import com.example.gofund.viewmodel.ExpenseViewModel
 import kotlinx.coroutines.delay
@@ -119,6 +120,12 @@ fun ExpenseScreen(
                         Image(
                             painter = painterResource(R.drawable.nodata_2),
                             contentDescription = "image"
+                        )
+                        Text(
+                            text = "No expenses made",
+                            fontFamily = IntroFamily,
+                            fontSize = 20.sp,
+                            color = LightModeYellow
                         )
                     }
                 }

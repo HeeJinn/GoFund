@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -37,6 +38,7 @@ import com.example.gofund.navigations.Screen
 import com.example.gofund.ui.theme.IntroFamily
 import com.example.gofund.ui.theme.LightModeLightBlue
 import com.example.gofund.ui.theme.LightModeWhite
+import com.example.gofund.ui.theme.LightModeYellow
 import com.example.gofund.ui.theme.PoppinsFamily
 import com.example.gofund.viewmodel.InvestmentViewModel
 import kotlinx.coroutines.delay
@@ -106,6 +108,13 @@ fun InvestmentScreen(
                             painter = painterResource(R.drawable.nodata_2),
                             contentDescription = "image"
                         )
+                        Text(
+                            text = "No investments made",
+                            fontFamily = IntroFamily,
+                            fontSize = 20.sp,
+                            color = LightModeYellow
+                        )
+
                     }
                 }
             }else{
