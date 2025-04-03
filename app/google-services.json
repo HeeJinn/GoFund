@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "416370939526",
+    "project_id": "gofund-1ae38",
+    "storage_bucket": "gofund-1ae38.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416370939526:android:ef127ebd75ad6a7811e307",
+        "android_client_info": {
+          "package_name": "com.example.gofund"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWixBrCl_yzTxCNOgzomLk51KLl1b1qeo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
