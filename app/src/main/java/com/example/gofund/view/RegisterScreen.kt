@@ -169,7 +169,10 @@ fun RegisterScreen(navController: NavController, loginViewModel: LoginViewModel 
                         if (email.isEmpty() || username.isEmpty() || password.isEmpty()){
                             errorMsg = "Make sure to fill all the text field"
                         }
-                        else if (!isAgreedToTermsAndPrivacyOpen) errorMsg = "Please accept the Terms and Conditions and Privacy Policy"
+                        else if (!isAgreedToTermsAndPrivacyOpen) {
+                            isTermsAndPrivacyOpen = true
+                            errorMsg = "Please accept the Terms and Conditions and Privacy Policy"
+                        }
                         else if (password.length < 9){
                             errorMsg = "Password must be at least 9 characters"
                             return@SignupButton
