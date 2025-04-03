@@ -1,5 +1,14 @@
 package com.example.gofund.view
 
+
+// --- NECESSARY IMPORTS for Permissions ---
+import android.Manifest // Needed for permission name
+import android.content.pm.PackageManager // Needed for permission check result
+import android.os.Build // Needed for SDK version check
+import androidx.activity.compose.rememberLauncherForActivityResult // Needed for permission launcher
+import androidx.activity.result.contract.ActivityResultContracts // Needed for permission contract
+import androidx.core.content.ContextCompat // Needed for permission check function
+// --- End Permission Imports ---
 import com.example.gofund.viewmodel.LoginViewModel
 import android.app.Activity
 import android.util.Log
@@ -355,6 +364,40 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
 
     val userPreferences by loginViewModel.userPreferences.collectAsState()
 
+    var hasNotificationPermission by remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mutableStateOf(
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            )
+        } else {
+            mutableStateOf(true)
+        }
+    }
+
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            Log.d("Permissions", "Notification Permission Result: Granted = $isGranted")
+            hasNotificationPermission = isGranted
+            if (!isGranted) {
+                Toast.makeText(context, "Notifications disabled", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Notifications enabled", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    LaunchedEffect(key1 = true) { // Run once when LoginScreen enters composition
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+
     LaunchedEffect(userPreferences) {
         // Check if the DataStore value is not the default empty/false AND local state is still empty/false
         if (userPreferences.rememberMe && userPreferences.email.isNotEmpty() && emailInput.isEmpty()) {
@@ -423,22 +466,22 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                     LogoText()
 
                     EmailNameTextField(
-                        username = emailInput, // Bind to local UI state
+                        username = emailInput,
                         onUsernameValueChange = { emailInput = it }
                     )
                     PasswordTextField(
                         password = passwordInput,
-                        modifier = Modifier.padding(top = 10.dp), // Your modifier
-                        onPasswordValueChange = { newValue -> // 'newValue' is the proposed update
+                        modifier = Modifier.padding(top = 10.dp),
+                        onPasswordValueChange = { newValue ->
                                 passwordInput = newValue
 
                         }
                     )
                     RowAreaForRememberMeAndForgotPass(
-                        modifier = Modifier.padding(top = 4.dp, bottom = 16.dp), // Adjust spacing
-                        checkedState = rememberMeChecked, // Bind checkbox to local UI state
+                        modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
+                        checkedState = rememberMeChecked,
                         onCheckChange = { isChecked ->
-                            // This lambda is called when the Checkbox state *should* change
+
                             rememberMeChecked = isChecked
                             Log.d("LoginScreen", "Checkbox toggled: $isChecked")
                         },
@@ -447,32 +490,31 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                         }
                     )
 
-                    // Display error message if not null or empty
+
                     errorMessage?.let {
                         if (it.isNotEmpty()) {
                             Text(
                                 text = it,
-                                color = MaterialTheme.colorScheme.error, // Use theme error color
-                                style = MaterialTheme.typography.bodySmall, // Use theme typography
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(bottom = 8.dp),
                                 textAlign = TextAlign.Center
                             )
                         }
                     }
 
-                    LoginButton( // Removed NavController param as it's available in scope
+                    LoginButton(
                         modifier = Modifier.padding(bottom = 10.dp),
                         onClick = {
-                            if (emailInput.isBlank() || passwordInput.isBlank()) { // Use isBlank for better validation
+                            if (emailInput.isBlank() || passwordInput.isBlank()) {
                                 errorMessage = "Email and password cannot be empty."
-                                // Toast is optional if error is shown in Text
-                                // Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+
                                 return@LoginButton
                             }else if(passwordInput.length < 9){
                                 errorMessage = "Password must be at least 9 characters long."
                                 return@LoginButton
                             } else {
-                                errorMessage = null // Clear previous error
+                                errorMessage = null
                                 isLoading = true
                                 loginViewModel.login(
                                     email = emailInput.trim(),
